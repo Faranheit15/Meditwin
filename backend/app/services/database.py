@@ -45,6 +45,7 @@ class AsyncDatabaseService:
             pool_size=5,
             max_overflow=10,
             pool_timeout=30,
+            connect_args={"statement_cache_size": 0},
         )
         self._session_factory = async_sessionmaker(
             bind=self._engine,
