@@ -1,0 +1,1156 @@
+[
+    {
+        "id": "Patient_01",
+        "status": "qualifies",
+        "demographics": {
+            "age": 56,
+            "sex": "Male",
+            "ethnicity": "White"
+        },
+        "labs": [
+            {
+                "date": "2025-07-01",
+                "eGFR": 78,
+                "hemoglobin": 13.6,
+                "ALT": 24,
+                "AST": 22,
+                "HbA1c": 8.2,
+                "WBC": 6.1,
+                "platelets": 220,
+                "creatinine": 1.0
+            },
+            {
+                "date": "2025-10-01",
+                "eGFR": 76,
+                "hemoglobin": 13.5,
+                "ALT": 23,
+                "AST": 21,
+                "HbA1c": 8.0,
+                "WBC": 6.3,
+                "platelets": 218,
+                "creatinine": 1.0
+            },
+            {
+                "date": "2026-01-01",
+                "eGFR": 75,
+                "hemoglobin": 13.4,
+                "ALT": 24,
+                "AST": 22,
+                "HbA1c": 7.9,
+                "WBC": 6.2,
+                "platelets": 215,
+                "creatinine": 1.1
+            }
+        ],
+        "medications": [
+            {
+                "name": "metformin",
+                "start_date": "2023-04-10"
+            },
+            {
+                "name": "lisinopril",
+                "start_date": "2024-02-01"
+            }
+        ],
+        "medical_history": [
+            {
+                "ICD10": "E11.9",
+                "condition": "Type 2 Diabetes"
+            },
+            {
+                "ICD10": "I10",
+                "condition": "Hypertension"
+            }
+        ]
+    },
+    {
+        "id": "Patient_02",
+        "status": "qualifies",
+        "demographics": {
+            "age": 61,
+            "sex": "Female",
+            "ethnicity": "Asian"
+        },
+        "labs": [
+            {
+                "date": "2025-06-01",
+                "eGFR": 82,
+                "hemoglobin": 13.1,
+                "ALT": 21,
+                "AST": 20,
+                "HbA1c": 7.8,
+                "WBC": 6.5,
+                "platelets": 240,
+                "creatinine": 0.9
+            },
+            {
+                "date": "2025-10-01",
+                "eGFR": 80,
+                "hemoglobin": 13.2,
+                "ALT": 23,
+                "AST": 22,
+                "HbA1c": 7.7,
+                "WBC": 6.4,
+                "platelets": 238,
+                "creatinine": 0.9
+            },
+            {
+                "date": "2026-02-01",
+                "eGFR": 79,
+                "hemoglobin": 13.0,
+                "ALT": 22,
+                "AST": 21,
+                "HbA1c": 7.6,
+                "WBC": 6.3,
+                "platelets": 235,
+                "creatinine": 1.0
+            }
+        ],
+        "medications": [
+            {
+                "name": "metformin",
+                "start_date": "2022-01-12"
+            }
+        ],
+        "medical_history": [
+            {
+                "ICD10": "E11.9",
+                "condition": "Type 2 Diabetes"
+            }
+        ]
+    },
+    {
+        "id": "Patient_03",
+        "status": "qualifies",
+        "demographics": {
+            "age": 49,
+            "sex": "Male",
+            "ethnicity": "Hispanic"
+        },
+        "labs": [
+            {
+                "date": "2025-08-01",
+                "eGFR": 88,
+                "hemoglobin": 14.1,
+                "ALT": 25,
+                "AST": 23,
+                "HbA1c": 8.4,
+                "WBC": 6.8,
+                "platelets": 260,
+                "creatinine": 0.9
+            },
+            {
+                "date": "2025-11-01",
+                "eGFR": 86,
+                "hemoglobin": 14.0,
+                "ALT": 24,
+                "AST": 22,
+                "HbA1c": 8.1,
+                "WBC": 6.7,
+                "platelets": 255,
+                "creatinine": 1.0
+            },
+            {
+                "date": "2026-02-01",
+                "eGFR": 85,
+                "hemoglobin": 13.9,
+                "ALT": 23,
+                "AST": 22,
+                "HbA1c": 7.9,
+                "WBC": 6.6,
+                "platelets": 252,
+                "creatinine": 1.0
+            }
+        ],
+        "medications": [
+            {
+                "name": "metformin",
+                "start_date": "2023-05-01"
+            }
+        ],
+        "medical_history": [
+            {
+                "ICD10": "E11.9",
+                "condition": "Type 2 Diabetes"
+            }
+        ]
+    },
+    {
+        "id": "Patient_04",
+        "status": "qualifies",
+        "demographics": {
+            "age": 54,
+            "sex": "Female",
+            "ethnicity": "Black"
+        },
+        "labs": [
+            {
+                "date": "2025-07-01",
+                "eGFR": 72,
+                "hemoglobin": 13.2,
+                "ALT": 20,
+                "AST": 19,
+                "HbA1c": 8.0,
+                "WBC": 6.1,
+                "platelets": 230,
+                "creatinine": 1.0
+            },
+            {
+                "date": "2025-11-01",
+                "eGFR": 71,
+                "hemoglobin": 13.0,
+                "ALT": 21,
+                "AST": 20,
+                "HbA1c": 7.8,
+                "WBC": 6.0,
+                "platelets": 228,
+                "creatinine": 1.0
+            },
+            {
+                "date": "2026-02-01",
+                "eGFR": 70,
+                "hemoglobin": 12.9,
+                "ALT": 20,
+                "AST": 20,
+                "HbA1c": 7.7,
+                "WBC": 6.1,
+                "platelets": 226,
+                "creatinine": 1.1
+            }
+        ],
+        "medications": [
+            {
+                "name": "metformin",
+                "start_date": "2022-08-01"
+            }
+        ],
+        "medical_history": [
+            {
+                "ICD10": "E11.9",
+                "condition": "Type 2 Diabetes"
+            }
+        ]
+    },
+    {
+        "id": "Patient_05",
+        "status": "qualifies",
+        "demographics": {
+            "age": 59,
+            "sex": "Male",
+            "ethnicity": "White"
+        },
+        "labs": [
+            {
+                "date": "2025-08-01",
+                "eGFR": 74,
+                "hemoglobin": 13.7,
+                "ALT": 26,
+                "AST": 24,
+                "HbA1c": 8.3,
+                "WBC": 6.5,
+                "platelets": 250,
+                "creatinine": 1.1
+            },
+            {
+                "date": "2025-11-01",
+                "eGFR": 73,
+                "hemoglobin": 13.6,
+                "ALT": 24,
+                "AST": 22,
+                "HbA1c": 8.0,
+                "WBC": 6.4,
+                "platelets": 248,
+                "creatinine": 1.1
+            },
+            {
+                "date": "2026-02-01",
+                "eGFR": 72,
+                "hemoglobin": 13.5,
+                "ALT": 23,
+                "AST": 21,
+                "HbA1c": 7.9,
+                "WBC": 6.3,
+                "platelets": 245,
+                "creatinine": 1.2
+            }
+        ],
+        "medications": [
+            {
+                "name": "metformin",
+                "start_date": "2023-01-20"
+            },
+            {
+                "name": "atorvastatin",
+                "start_date": "2024-03-12"
+            }
+        ],
+        "medical_history": [
+            {
+                "ICD10": "E11.9",
+                "condition": "Type 2 Diabetes"
+            },
+            {
+                "ICD10": "E78.5",
+                "condition": "Hyperlipidemia"
+            }
+        ]
+    },
+    {
+        "id": "Patient_06",
+        "status": "qualifies",
+        "demographics": {
+            "age": 63,
+            "sex": "Female",
+            "ethnicity": "Asian"
+        },
+        "labs": [
+            {
+                "date": "2025-07-01",
+                "eGFR": 76,
+                "hemoglobin": 12.9,
+                "ALT": 22,
+                "AST": 20,
+                "HbA1c": 8.1,
+                "WBC": 6.2,
+                "platelets": 230,
+                "creatinine": 1.0
+            },
+            {
+                "date": "2025-10-01",
+                "eGFR": 75,
+                "hemoglobin": 12.8,
+                "ALT": 21,
+                "AST": 19,
+                "HbA1c": 7.9,
+                "WBC": 6.3,
+                "platelets": 228,
+                "creatinine": 1.0
+            },
+            {
+                "date": "2026-02-01",
+                "eGFR": 74,
+                "hemoglobin": 12.7,
+                "ALT": 20,
+                "AST": 18,
+                "HbA1c": 7.8,
+                "WBC": 6.2,
+                "platelets": 225,
+                "creatinine": 1.1
+            }
+        ],
+        "medications": [
+            {
+                "name": "metformin",
+                "start_date": "2021-11-01"
+            }
+        ],
+        "medical_history": [
+            {
+                "ICD10": "E11.9",
+                "condition": "Type 2 Diabetes"
+            }
+        ]
+    },
+    {
+        "id": "Patient_07",
+        "status": "borderline",
+        "note": "Patient 7 has eGFR 48 today, was 55 six months ago. On metformin and lisinopril. Borderline now with projected breach at Week 12.",
+        "demographics": {
+            "age": 63,
+            "sex": "Female",
+            "ethnicity": "White"
+        },
+        "labs": [
+            {
+                "date": "2025-08-01",
+                "eGFR": 55,
+                "hemoglobin": 12.7,
+                "ALT": 24,
+                "AST": 23,
+                "HbA1c": 7.9,
+                "WBC": 6.4,
+                "platelets": 220,
+                "creatinine": 1.2
+            },
+            {
+                "date": "2025-11-01",
+                "eGFR": 51,
+                "hemoglobin": 12.6,
+                "ALT": 25,
+                "AST": 24,
+                "HbA1c": 8.0,
+                "WBC": 6.3,
+                "platelets": 218,
+                "creatinine": 1.3
+            },
+            {
+                "date": "2026-02-01",
+                "eGFR": 48,
+                "hemoglobin": 12.5,
+                "ALT": 25,
+                "AST": 24,
+                "HbA1c": 8.1,
+                "WBC": 6.2,
+                "platelets": 215,
+                "creatinine": 1.4
+            }
+        ],
+        "medications": [
+            {
+                "name": "metformin",
+                "start_date": "2022-02-01"
+            },
+            {
+                "name": "lisinopril",
+                "start_date": "2023-05-10"
+            }
+        ],
+        "medical_history": [
+            {
+                "ICD10": "E11.9",
+                "condition": "Type 2 Diabetes"
+            },
+            {
+                "ICD10": "N18.3",
+                "condition": "Chronic Kidney Disease Stage 3"
+            }
+        ]
+    },
+    {
+        "id": "Patient_08",
+        "status": "borderline",
+        "demographics": {
+            "age": 58,
+            "sex": "Male",
+            "ethnicity": "Black"
+        },
+        "labs": [
+            {
+                "date": "2025-07-01",
+                "eGFR": 52,
+                "hemoglobin": 12.8,
+                "ALT": 28,
+                "AST": 27,
+                "HbA1c": 8.4,
+                "WBC": 6.7,
+                "platelets": 230,
+                "creatinine": 1.3
+            },
+            {
+                "date": "2025-10-01",
+                "eGFR": 50,
+                "hemoglobin": 12.7,
+                "ALT": 29,
+                "AST": 27,
+                "HbA1c": 8.3,
+                "WBC": 6.6,
+                "platelets": 228,
+                "creatinine": 1.3
+            },
+            {
+                "date": "2026-02-01",
+                "eGFR": 49,
+                "hemoglobin": 12.6,
+                "ALT": 30,
+                "AST": 28,
+                "HbA1c": 8.2,
+                "WBC": 6.5,
+                "platelets": 225,
+                "creatinine": 1.4
+            }
+        ],
+        "medications": [
+            {
+                "name": "metformin",
+                "start_date": "2022-03-15"
+            }
+        ],
+        "medical_history": [
+            {
+                "ICD10": "E11.9",
+                "condition": "Type 2 Diabetes"
+            }
+        ]
+    },
+    {
+        "id": "Patient_09",
+        "status": "borderline",
+        "demographics": {
+            "age": 60,
+            "sex": "Female",
+            "ethnicity": "Asian"
+        },
+        "labs": [
+            {
+                "date": "2025-08-01",
+                "eGFR": 67,
+                "hemoglobin": 11.1,
+                "ALT": 23,
+                "AST": 22,
+                "HbA1c": 8.0,
+                "WBC": 6.3,
+                "platelets": 200,
+                "creatinine": 1.1
+            },
+            {
+                "date": "2025-11-01",
+                "eGFR": 66,
+                "hemoglobin": 10.8,
+                "ALT": 24,
+                "AST": 22,
+                "HbA1c": 7.9,
+                "WBC": 6.2,
+                "platelets": 198,
+                "creatinine": 1.1
+            },
+            {
+                "date": "2026-02-01",
+                "eGFR": 65,
+                "hemoglobin": 10.6,
+                "ALT": 23,
+                "AST": 22,
+                "HbA1c": 7.8,
+                "WBC": 6.1,
+                "platelets": 195,
+                "creatinine": 1.2
+            }
+        ],
+        "medications": [
+            {
+                "name": "metformin",
+                "start_date": "2021-06-10"
+            }
+        ],
+        "medical_history": [
+            {
+                "ICD10": "E11.9",
+                "condition": "Type 2 Diabetes"
+            }
+        ]
+    },
+    {
+        "id": "Patient_10",
+        "status": "borderline",
+        "note": "HbA1c rising from 7.3 to 8.6 over 6 months despite therapy.",
+        "demographics": {
+            "age": 52,
+            "sex": "Male",
+            "ethnicity": "Hispanic"
+        },
+        "labs": [
+            {
+                "date": "2025-08-01",
+                "eGFR": 71,
+                "hemoglobin": 13.4,
+                "ALT": 25,
+                "AST": 24,
+                "HbA1c": 7.3,
+                "WBC": 6.4,
+                "platelets": 240,
+                "creatinine": 1.1
+            },
+            {
+                "date": "2025-11-01",
+                "eGFR": 70,
+                "hemoglobin": 13.3,
+                "ALT": 26,
+                "AST": 24,
+                "HbA1c": 7.9,
+                "WBC": 6.5,
+                "platelets": 238,
+                "creatinine": 1.1
+            },
+            {
+                "date": "2026-02-01",
+                "eGFR": 69,
+                "hemoglobin": 13.2,
+                "ALT": 27,
+                "AST": 25,
+                "HbA1c": 8.6,
+                "WBC": 6.6,
+                "platelets": 236,
+                "creatinine": 1.2
+            }
+        ],
+        "medications": [
+            {
+                "name": "metformin",
+                "start_date": "2023-02-01"
+            }
+        ],
+        "medical_history": [
+            {
+                "ICD10": "E11.9",
+                "condition": "Type 2 Diabetes"
+            }
+        ]
+    },
+    {
+        "id": "Patient_11",
+        "status": "borderline",
+        "demographics": {
+            "age": 64,
+            "sex": "Male",
+            "ethnicity": "White"
+        },
+        "labs": [
+            {
+                "date": "2025-07-01",
+                "eGFR": 60,
+                "hemoglobin": 12.5,
+                "ALT": 32,
+                "AST": 30,
+                "HbA1c": 8.2,
+                "WBC": 6.0,
+                "platelets": 210,
+                "creatinine": 1.2
+            },
+            {
+                "date": "2025-11-01",
+                "eGFR": 59,
+                "hemoglobin": 12.4,
+                "ALT": 33,
+                "AST": 30,
+                "HbA1c": 8.1,
+                "WBC": 6.1,
+                "platelets": 208,
+                "creatinine": 1.3
+            },
+            {
+                "date": "2026-02-01",
+                "eGFR": 58,
+                "hemoglobin": 12.3,
+                "ALT": 34,
+                "AST": 31,
+                "HbA1c": 8.1,
+                "WBC": 6.1,
+                "platelets": 205,
+                "creatinine": 1.3
+            }
+        ],
+        "medications": [
+            {
+                "name": "metformin",
+                "start_date": "2022-04-10"
+            }
+        ],
+        "medical_history": [
+            {
+                "ICD10": "E11.9",
+                "condition": "Type 2 Diabetes"
+            }
+        ]
+    },
+    {
+        "id": "Patient_12",
+        "status": "borderline",
+        "demographics": {
+            "age": 57,
+            "sex": "Female",
+            "ethnicity": "Black"
+        },
+        "labs": [
+            {
+                "date": "2025-08-01",
+                "eGFR": 68,
+                "hemoglobin": 12.4,
+                "ALT": 25,
+                "AST": 24,
+                "HbA1c": 8.2,
+                "WBC": 6.5,
+                "platelets": 230,
+                "creatinine": 1.1
+            },
+            {
+                "date": "2025-11-01",
+                "eGFR": 67,
+                "hemoglobin": 12.3,
+                "ALT": 26,
+                "AST": 24,
+                "HbA1c": 8.3,
+                "WBC": 6.4,
+                "platelets": 228,
+                "creatinine": 1.1
+            },
+            {
+                "date": "2026-02-01",
+                "eGFR": 66,
+                "hemoglobin": 12.2,
+                "ALT": 27,
+                "AST": 25,
+                "HbA1c": 8.4,
+                "WBC": 6.3,
+                "platelets": 226,
+                "creatinine": 1.2
+            }
+        ],
+        "medications": [
+            {
+                "name": "metformin",
+                "start_date": "2021-09-01"
+            }
+        ],
+        "medical_history": [
+            {
+                "ICD10": "E11.9",
+                "condition": "Type 2 Diabetes"
+            }
+        ]
+    },
+    {
+        "id": "Patient_13",
+        "status": "fail",
+        "note": "eGFR below protocol threshold.",
+        "demographics": {
+            "age": 66,
+            "sex": "Male",
+            "ethnicity": "White"
+        },
+        "labs": [
+            {
+                "date": "2025-08-01",
+                "eGFR": 44,
+                "hemoglobin": 12.2,
+                "ALT": 24,
+                "AST": 22,
+                "HbA1c": 8.0,
+                "WBC": 6.1,
+                "platelets": 210,
+                "creatinine": 1.5
+            },
+            {
+                "date": "2025-11-01",
+                "eGFR": 42,
+                "hemoglobin": 12.0,
+                "ALT": 24,
+                "AST": 23,
+                "HbA1c": 8.1,
+                "WBC": 6.2,
+                "platelets": 208,
+                "creatinine": 1.6
+            },
+            {
+                "date": "2026-02-01",
+                "eGFR": 41,
+                "hemoglobin": 11.9,
+                "ALT": 25,
+                "AST": 23,
+                "HbA1c": 8.2,
+                "WBC": 6.3,
+                "platelets": 205,
+                "creatinine": 1.7
+            }
+        ],
+        "medications": [
+            {
+                "name": "metformin",
+                "start_date": "2020-01-01"
+            }
+        ],
+        "medical_history": [
+            {
+                "ICD10": "N18.4",
+                "condition": "Chronic Kidney Disease"
+            }
+        ]
+    },
+    {
+        "id": "Patient_14",
+        "status": "fail",
+        "note": "HbA1c exceeds protocol limit.",
+        "demographics": {
+            "age": 48,
+            "sex": "Male",
+            "ethnicity": "Hispanic"
+        },
+        "labs": [
+            {
+                "date": "2025-08-01",
+                "eGFR": 70,
+                "hemoglobin": 13.5,
+                "ALT": 24,
+                "AST": 23,
+                "HbA1c": 10.5,
+                "WBC": 6.4,
+                "platelets": 240,
+                "creatinine": 1.0
+            },
+            {
+                "date": "2025-11-01",
+                "eGFR": 69,
+                "hemoglobin": 13.4,
+                "ALT": 25,
+                "AST": 24,
+                "HbA1c": 10.7,
+                "WBC": 6.3,
+                "platelets": 238,
+                "creatinine": 1.0
+            },
+            {
+                "date": "2026-02-01",
+                "eGFR": 69,
+                "hemoglobin": 13.3,
+                "ALT": 26,
+                "AST": 24,
+                "HbA1c": 10.8,
+                "WBC": 6.4,
+                "platelets": 236,
+                "creatinine": 1.1
+            }
+        ],
+        "medications": [
+            {
+                "name": "metformin",
+                "start_date": "2023-01-01"
+            }
+        ],
+        "medical_history": [
+            {
+                "ICD10": "E11.9",
+                "condition": "Type 2 Diabetes"
+            }
+        ]
+    },
+    {
+        "id": "Patient_15",
+        "status": "fail",
+        "note": "ALT persistently >3x ULN indicating hepatic dysfunction.",
+        "demographics": {
+            "age": 55,
+            "sex": "Female",
+            "ethnicity": "Asian"
+        },
+        "labs": [
+            {
+                "date": "2025-08-01",
+                "eGFR": 72,
+                "hemoglobin": 13.2,
+                "ALT": 145,
+                "AST": 130,
+                "HbA1c": 8.1,
+                "WBC": 6.1,
+                "platelets": 230,
+                "creatinine": 1.1
+            },
+            {
+                "date": "2025-11-01",
+                "eGFR": 71,
+                "hemoglobin": 13.1,
+                "ALT": 150,
+                "AST": 135,
+                "HbA1c": 8.0,
+                "WBC": 6.2,
+                "platelets": 228,
+                "creatinine": 1.1
+            },
+            {
+                "date": "2026-02-01",
+                "eGFR": 70,
+                "hemoglobin": 13.0,
+                "ALT": 148,
+                "AST": 132,
+                "HbA1c": 8.0,
+                "WBC": 6.3,
+                "platelets": 225,
+                "creatinine": 1.1
+            }
+        ],
+        "medications": [
+            {
+                "name": "metformin",
+                "start_date": "2022-02-02"
+            }
+        ],
+        "medical_history": [
+            {
+                "ICD10": "K76.9",
+                "condition": "Liver Disease"
+            }
+        ]
+    },
+    {
+        "id": "Patient_16",
+        "status": "fail",
+        "note": "Patient received anti-CD20 therapy four months prior to screening.",
+        "demographics": {
+            "age": 52,
+            "sex": "Female",
+            "ethnicity": "White"
+        },
+        "labs": [
+            {
+                "date": "2025-08-01",
+                "eGFR": 71,
+                "hemoglobin": 12.8,
+                "ALT": 24,
+                "AST": 23,
+                "HbA1c": 7.9,
+                "WBC": 6.2,
+                "platelets": 220,
+                "creatinine": 1.1
+            },
+            {
+                "date": "2025-11-01",
+                "eGFR": 70,
+                "hemoglobin": 12.7,
+                "ALT": 25,
+                "AST": 24,
+                "HbA1c": 7.9,
+                "WBC": 6.3,
+                "platelets": 218,
+                "creatinine": 1.1
+            },
+            {
+                "date": "2026-02-01",
+                "eGFR": 71,
+                "hemoglobin": 12.8,
+                "ALT": 25,
+                "AST": 23,
+                "HbA1c": 7.8,
+                "WBC": 6.2,
+                "platelets": 220,
+                "creatinine": 1.1
+            }
+        ],
+        "medications": [
+            {
+                "name": "rituximab",
+                "start_date": "2025-11-01"
+            }
+        ],
+        "medical_history": [
+            {
+                "ICD10": "M06.9",
+                "condition": "Rheumatoid Arthritis"
+            }
+        ]
+    },
+    {
+        "id": "Patient_17",
+        "status": "fail",
+        "demographics": {
+            "age": 68,
+            "sex": "Male",
+            "ethnicity": "Black"
+        },
+        "labs": [
+            {
+                "date": "2025-08-01",
+                "eGFR": 65,
+                "hemoglobin": 8.9,
+                "ALT": 24,
+                "AST": 23,
+                "HbA1c": 7.9,
+                "WBC": 6.2,
+                "platelets": 200,
+                "creatinine": 1.2
+            },
+            {
+                "date": "2025-11-01",
+                "eGFR": 64,
+                "hemoglobin": 8.8,
+                "ALT": 24,
+                "AST": 23,
+                "HbA1c": 7.8,
+                "WBC": 6.3,
+                "platelets": 198,
+                "creatinine": 1.2
+            },
+            {
+                "date": "2026-02-01",
+                "eGFR": 63,
+                "hemoglobin": 8.7,
+                "ALT": 25,
+                "AST": 24,
+                "HbA1c": 7.8,
+                "WBC": 6.4,
+                "platelets": 195,
+                "creatinine": 1.3
+            }
+        ],
+        "medications": [
+            {
+                "name": "metformin",
+                "start_date": "2022-02-01"
+            }
+        ],
+        "medical_history": [
+            {
+                "ICD10": "D64.9",
+                "condition": "Anemia"
+            }
+        ]
+    },
+    {
+        "id": "Patient_18",
+        "status": "fail",
+        "demographics": {
+            "age": 62,
+            "sex": "Female",
+            "ethnicity": "Asian"
+        },
+        "labs": [
+            {
+                "date": "2025-08-01",
+                "eGFR": 73,
+                "hemoglobin": 12.9,
+                "ALT": 26,
+                "AST": 24,
+                "HbA1c": 7.9,
+                "WBC": 3.1,
+                "platelets": 220,
+                "creatinine": 1.0
+            },
+            {
+                "date": "2025-11-01",
+                "eGFR": 72,
+                "hemoglobin": 12.8,
+                "ALT": 25,
+                "AST": 23,
+                "HbA1c": 7.9,
+                "WBC": 3.0,
+                "platelets": 218,
+                "creatinine": 1.1
+            },
+            {
+                "date": "2026-02-01",
+                "eGFR": 71,
+                "hemoglobin": 12.8,
+                "ALT": 26,
+                "AST": 24,
+                "HbA1c": 7.8,
+                "WBC": 2.9,
+                "platelets": 215,
+                "creatinine": 1.1
+            }
+        ],
+        "medications": [
+            {
+                "name": "methotrexate",
+                "start_date": "2023-03-01"
+            }
+        ],
+        "medical_history": [
+            {
+                "ICD10": "M06.9",
+                "condition": "Rheumatoid Arthritis"
+            }
+        ]
+    },
+    {
+        "id": "Patient_19",
+        "status": "fail",
+        "demographics": {
+            "age": 50,
+            "sex": "Male",
+            "ethnicity": "White"
+        },
+        "labs": [
+            {
+                "date": "2025-08-01",
+                "eGFR": 68,
+                "hemoglobin": 13.2,
+                "ALT": 26,
+                "AST": 24,
+                "HbA1c": 8.1,
+                "WBC": 6.4,
+                "platelets": 95,
+                "creatinine": 1.1
+            },
+            {
+                "date": "2025-11-01",
+                "eGFR": 67,
+                "hemoglobin": 13.1,
+                "ALT": 27,
+                "AST": 25,
+                "HbA1c": 8.0,
+                "WBC": 6.5,
+                "platelets": 92,
+                "creatinine": 1.1
+            },
+            {
+                "date": "2026-02-01",
+                "eGFR": 66,
+                "hemoglobin": 13.1,
+                "ALT": 26,
+                "AST": 25,
+                "HbA1c": 8.0,
+                "WBC": 6.4,
+                "platelets": 90,
+                "creatinine": 1.2
+            }
+        ],
+        "medications": [
+            {
+                "name": "metformin",
+                "start_date": "2023-04-01"
+            }
+        ],
+        "medical_history": [
+            {
+                "ICD10": "D69.6",
+                "condition": "Thrombocytopenia"
+            }
+        ]
+    },
+    {
+        "id": "Patient_20",
+        "status": "fail",
+        "demographics": {
+            "age": 53,
+            "sex": "Female",
+            "ethnicity": "Hispanic"
+        },
+        "labs": [
+            {
+                "date": "2025-08-01",
+                "eGFR": 70,
+                "hemoglobin": 13.2,
+                "ALT": 24,
+                "AST": 23,
+                "HbA1c": 8.0,
+                "WBC": 6.2,
+                "platelets": 220,
+                "creatinine": 1.1
+            },
+            {
+                "date": "2025-11-01",
+                "eGFR": 69,
+                "hemoglobin": 13.1,
+                "ALT": 25,
+                "AST": 24,
+                "HbA1c": 8.0,
+                "WBC": 6.3,
+                "platelets": 218,
+                "creatinine": 1.1
+            },
+            {
+                "date": "2026-02-01",
+                "eGFR": 68,
+                "hemoglobin": 13.0,
+                "ALT": 24,
+                "AST": 23,
+                "HbA1c": 7.9,
+                "WBC": 6.3,
+                "platelets": 215,
+                "creatinine": 1.1
+            }
+        ],
+        "medications": [
+            {
+                "name": "metformin",
+                "start_date": "2023-05-01"
+            },
+            {
+                "name": "rituximab",
+                "start_date": "2025-12-01"
+            }
+        ],
+        "medical_history": [
+            {
+                "ICD10": "M06.9",
+                "condition": "Rheumatoid Arthritis"
+            }
+        ]
+    }
+]
