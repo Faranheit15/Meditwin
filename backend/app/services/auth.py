@@ -110,11 +110,14 @@ class ClerkAuthService:
         if not subject:
             raise AuthenticationError("Token is missing subject claim.")
 
+        fallback_profile = await self._fetch_user_profile(subject)
         clerk_payload = ClerkUserPayload(
             sub=subject,
-            email=self._extract_email(payload, subject),
-            first_name=payload.get("first_name"),
-            last_name=payload.get("last_name"),
+            email=self._extract_email(payload, subject, fallback_profile),
+            first_name=self._extract_optional_string(payload, "first_name")
+            or fallback_profile.first_name,
+            last_name=self._extract_optional_string(payload, "last_name")
+            or fallback_profile.last_name,
         )
         logger.info("User authenticated", event="verify", user_id=clerk_payload.sub)
         return clerk_payload
@@ -141,7 +144,42 @@ class ClerkAuthService:
         await session.flush()
         return user
 
-    def _extract_email(self, payload: dict[str, object], subject: str) -> str:
+    async def _fetch_user_profile(self, subject: str) -> ClerkUserPayload:
+        settings = get_settings()
+        if not settings.CLERK_SECRET_KEY:
+            return ClerkUserPayload(sub=subject, email=f"{subject}@clerk.local")
+
+        try:
+            async with httpx.AsyncClient(
+                base_url="https://api.clerk.com/v1",
+                headers={"Authorization": f"Bearer {settings.CLERK_SECRET_KEY}"},
+                timeout=10.0,
+            ) as client:
+                response = await client.get(f"/users/{subject}")
+                response.raise_for_status()
+        except httpx.HTTPError as exc:
+            logger.warning(
+                "Failed to fetch Clerk user profile",
+                event="clerk_user_fetch_failed",
+                user_id=subject,
+                error=str(exc),
+            )
+            return ClerkUserPayload(sub=subject, email=f"{subject}@clerk.local")
+
+        data = response.json()
+        return ClerkUserPayload(
+            sub=subject,
+            email=self._extract_email(data, subject),
+            first_name=self._extract_optional_string(data, "first_name"),
+            last_name=self._extract_optional_string(data, "last_name"),
+        )
+
+    def _extract_email(
+        self,
+        payload: dict[str, object],
+        subject: str,
+        fallback_profile: ClerkUserPayload | None = None,
+    ) -> str:
         raw_email = payload.get("email")
         if isinstance(raw_email, str) and raw_email:
             return raw_email
@@ -158,4 +196,14 @@ class ClerkAuthService:
                     if isinstance(nested, str) and nested:
                         return nested
 
+        if fallback_profile and fallback_profile.email:
+            return fallback_profile.email
+
         return f"{subject}@clerk.local"
+
+    def _extract_optional_string(self, payload: dict[str, object], key: str) -> str | None:
+        value = payload.get(key)
+        if isinstance(value, str):
+            cleaned = value.strip()
+            return cleaned or None
+        return None

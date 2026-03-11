@@ -1,5 +1,12 @@
 import type { PaginationParams } from "@/types/common";
-import type { CriterionRule, PatientProfile, SimulationResult, User } from "@/types/models";
+import type {
+  CriterionRule,
+  PatientProfile,
+  Protocol,
+  ProtocolWithCriteria,
+  SimulationResult,
+  User,
+} from "@/types/models";
 
 export interface APIResponse<T> {
   success: boolean;
@@ -30,6 +37,7 @@ export interface UpdateCriterionPayload {
   timeWindow?: number | null;
   evalSchedule?: number[];
   requiresReview?: boolean;
+  confidence?: number | null;
 }
 
 export interface PreScreenPayload {
@@ -46,12 +54,15 @@ export interface AuthAPI {
 }
 
 export interface ProtocolAPI {
-  upload: (file: File) => Promise<APIResponse<null>>;
+  upload: (file: File) => Promise<APIResponse<Protocol>>;
+  list: () => Promise<APIResponse<Protocol[]>>;
+  getById: (id: string) => Promise<APIResponse<ProtocolWithCriteria>>;
   getCriteria: (protocolId: string) => Promise<APIResponse<CriterionRule[]>>;
   updateCriterion: (
     criterionId: string,
     data: UpdateCriterionPayload,
-  ) => Promise<APIResponse<null>>;
+  ) => Promise<APIResponse<CriterionRule>>;
+  confirm: (protocolId: string) => Promise<APIResponse<Protocol>>;
 }
 
 export interface PatientAPI {

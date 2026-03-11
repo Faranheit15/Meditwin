@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { apiRequest } from "@/lib/axios";
 import type {
@@ -10,7 +10,39 @@ import type {
   UpdateCriterionPayload,
 } from "@/types/api";
 import type { PaginationParams } from "@/types/common";
-import type { CriterionRule, SimulationResult, User } from "@/types/models";
+import type { CriterionRule, Protocol, ProtocolWithCriteria, SimulationResult, User } from "@/types/models";
+
+let protocolsCache: APIResponse<Protocol[]> | null = null;
+let protocolsInFlight: Promise<APIResponse<Protocol[]>> | null = null;
+
+export function invalidateProtocolListCache(): void {
+  protocolsCache = null;
+  protocolsInFlight = null;
+}
+
+async function fetchProtocolList(): Promise<APIResponse<Protocol[]>> {
+  if (protocolsCache) {
+    return protocolsCache;
+  }
+
+  if (protocolsInFlight) {
+    return protocolsInFlight;
+  }
+
+  protocolsInFlight = apiRequest<APIResponse<Protocol[]>>({
+    method: "GET",
+    url: "/protocols",
+  })
+    .then((response) => {
+      protocolsCache = response;
+      return response;
+    })
+    .finally(() => {
+      protocolsInFlight = null;
+    });
+
+  return protocolsInFlight;
+}
 
 export const authAPI: AuthAPI = {
   async getMe(): Promise<APIResponse<User>> {
@@ -22,17 +54,31 @@ export const authAPI: AuthAPI = {
 };
 
 export const protocolAPI: ProtocolAPI = {
-  async upload(file: File): Promise<APIResponse<null>> {
+  async upload(file: File): Promise<APIResponse<Protocol>> {
     const formData = new FormData();
     formData.append("file", file);
 
-    return apiRequest<APIResponse<null>>({
+    const response = await apiRequest<APIResponse<Protocol>>({
       method: "POST",
       url: "/protocols/upload",
       data: formData,
       headers: {
         "Content-Type": "multipart/form-data",
       },
+      timeout: 60000,
+    });
+    invalidateProtocolListCache();
+    return response;
+  },
+
+  async list(): Promise<APIResponse<Protocol[]>> {
+    return fetchProtocolList();
+  },
+
+  async getById(id: string): Promise<APIResponse<ProtocolWithCriteria>> {
+    return apiRequest<APIResponse<ProtocolWithCriteria>>({
+      method: "GET",
+      url: `/protocols/${id}`,
     });
   },
 
@@ -46,12 +92,21 @@ export const protocolAPI: ProtocolAPI = {
   async updateCriterion(
     criterionId: string,
     data: UpdateCriterionPayload,
-  ): Promise<APIResponse<null>> {
-    return apiRequest<APIResponse<null>>({
+  ): Promise<APIResponse<CriterionRule>> {
+    return apiRequest<APIResponse<CriterionRule>>({
       method: "PATCH",
-      url: `/protocols/criteria/${criterionId}`,
+      url: `/criteria/${criterionId}`,
       data,
     });
+  },
+
+  async confirm(protocolId: string): Promise<APIResponse<Protocol>> {
+    const response = await apiRequest<APIResponse<Protocol>>({
+      method: "POST",
+      url: `/protocols/${protocolId}/confirm`,
+    });
+    invalidateProtocolListCache();
+    return response;
   },
 };
 

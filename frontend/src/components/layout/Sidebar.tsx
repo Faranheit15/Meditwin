@@ -1,8 +1,9 @@
-"use client";
+﻿"use client";
 
 import { useClerk, useUser } from "@clerk/nextjs";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 import {
   ActivitySquare,
   ChevronLeft,
@@ -15,6 +16,7 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { ROUTES } from "@/constants/routes";
+import { protocolAPI } from "@/lib/api";
 import { UserSessionManager } from "@/stores/UserSessionManager";
 import { cn, getInitials } from "@/lib/utils";
 
@@ -34,6 +36,18 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
   const pathname = usePathname();
   const { user } = useUser();
   const { signOut } = useClerk();
+  const [protocolCount, setProtocolCount] = useState<number | null>(null);
+
+  useEffect(() => {
+    void (async () => {
+      try {
+        const response = await protocolAPI.list();
+        setProtocolCount(response.data?.length ?? 0);
+      } catch (error) {
+        console.error("Failed to load protocol count", error);
+      }
+    })();
+  }, []);
 
   const handleSignOut = async (): Promise<void> => {
     UserSessionManager.getInstance().clear();
@@ -60,6 +74,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
       <nav className="mt-8 flex flex-1 flex-col gap-2">
         {navigationItems.map(({ href, icon: Icon, label }) => {
           const isActive = pathname === href || pathname.startsWith(`${href}/`);
+          const showProtocolCount = href === ROUTES.PROTOCOLS && protocolCount !== null && !collapsed;
 
           return (
             <Link
@@ -75,6 +90,11 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
             >
               <Icon className="h-4 w-4 shrink-0" />
               {!collapsed ? <span>{label}</span> : null}
+              {showProtocolCount ? (
+                <span className="ml-auto rounded-full bg-cyan-400/10 px-2 py-0.5 text-xs font-semibold text-cyan-200">
+                  {protocolCount}
+                </span>
+              ) : null}
             </Link>
           );
         })}
@@ -104,3 +124,4 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
     </aside>
   );
 }
+

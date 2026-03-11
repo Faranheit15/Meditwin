@@ -15,9 +15,11 @@ export interface Protocol {
   id: string;
   name: string;
   version: string;
-  status: "processing" | "extracted" | "confirmed" | "failed";
+  status: "PROCESSING" | "EXTRACTED" | "CONFIRMED" | "FAILED";
+  fileName: string | null;
   criteriaCount: number;
   createdAt: string;
+  updatedAt: string;
 }
 
 export interface CriterionRule {
@@ -26,13 +28,19 @@ export interface CriterionRule {
   category: "INCLUSION" | "EXCLUSION";
   originalText: string;
   parameter: string;
-  operator: ">=" | "<=" | "==" | "!=" | "NOT_WITHIN" | "STABLE" | "BOOLEAN";
+  operator: "GTE" | "LTE" | "EQ" | "NEQ" | "BOOLEAN" | "NOT_WITHIN" | "STABLE";
   threshold: number | null;
   unit: string | null;
   timeWindow: number | null;
   evalSchedule: number[];
   requiresReview: boolean;
   confidence: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ProtocolWithCriteria extends Protocol {
+  criteria: CriterionRule[];
 }
 
 export interface PatientProfile {

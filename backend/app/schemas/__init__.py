@@ -1,20 +1,28 @@
-from app.schemas.common import APIErrorResponse, APIResponse, PaginatedResponse, PaginationParams
+﻿from app.schemas.common import APIErrorResponse, APIResponse, PaginatedResponse, PaginationParams
 from app.schemas.patient import PatientRead
-from app.schemas.protocol import CriterionRead, CriterionUpdate, ProtocolRead
+from app.schemas.protocol import (
+    CriterionCreate,
+    CriterionResponse,
+    CriterionUpdate,
+    ProtocolResponse,
+    ProtocolWithCriteriaResponse,
+)
 from app.schemas.simulation import FullSimulationRequest, PreScreenRequest, SimulationRead
 from app.schemas.user import UserRead
 
 __all__ = [
     "APIErrorResponse",
     "APIResponse",
-    "CriterionRead",
+    "CriterionCreate",
+    "CriterionResponse",
     "CriterionUpdate",
     "FullSimulationRequest",
     "PaginatedResponse",
     "PaginationParams",
     "PatientRead",
     "PreScreenRequest",
-    "ProtocolRead",
+    "ProtocolResponse",
+    "ProtocolWithCriteriaResponse",
     "SimulationRead",
     "UserRead",
 ]

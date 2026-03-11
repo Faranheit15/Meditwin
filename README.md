@@ -364,6 +364,30 @@ If `DATABASE_URL` is not present, the backend builds the async SQLAlchemy connec
 
 No Alembic is used in the current implementation.
 
+### Tables in the Database:
+
+- **`users`** — Every person who logs into the app. Created automatically on first sign-in via Clerk. The `clerk_id` links to Clerk's auth system, `role` determines what they can do (coordinator, admin, sponsor). This table is referenced by `patients.created_by_id`, `protocols.uploaded_by_id`, and `simulations.created_by_id` so you always know who did what. It's your audit trail anchor.
+
+- **`protocols`** — One row per uploaded trial protocol document. When a coordinator uploads a PDF, this row gets created immediately with `status: "processing"` and the `raw_text` field stores the full extracted text from the PDF. Once the LLM finishes extracting criteria, `status` changes to `"extracted"` and `criteria_count` gets updated. After the coordinator reviews and confirms the criteria, status becomes `"confirmed"`. If extraction fails, it goes to `"failed"`. Think of this as the header record — it represents the trial itself.
+
+- **`criteria`** — One row per individual eligibility rule extracted from a protocol. A single protocol might produce 15-25 criteria rows. Each row is a machine-readable rule: `parameter` is what to check (eGFR, hemoglobin, age), `operator` is how to check it (>=, <=, BOOLEAN, STABLE, NOT_WITHIN), `threshold` is the cutoff value, `unit` is the measurement unit, `time_window` is for temporal rules like "no exposure within 180 days", and `eval_schedule` is the list of trial weeks where this criterion needs to be checked (like [0, 4, 8, 12, 24]). The `confidence` score indicates how reliably the LLM extracted this rule, and `requires_review` flags subjective criteria that can't be automated. This is the table your simulation engine reads as input.
+
+- **`patients`** — One row per patient/test subject in the system. Contains demographics and summary fields. The `pre_screen_score` and `risk_level` fields get populated by the pre-screen sweep — they represent the quick, no-projection assessment of how likely this patient is to qualify. These are the values shown in the patient ranking table before anyone runs a full simulation. `created_by_id` tracks which coordinator added this patient.
+
+- **`lab_results`** — The patient's historical lab data over time. Multiple rows per patient, each timestamped with `result_date`. This is the most important table for your digital twin engine because this is where trends come from. If a patient has 5 eGFR readings spread over 6 months, your engine computes the slope from these rows and uses it to project forward. `reference_low` and `reference_high` store the normal range so you can flag abnormal values in the UI. When a coordinator uploads a new lab report and confirms the extraction, new rows get inserted here and the twin's projections update.
+
+- **`medications`** — Current and historical medications for each patient. `start_date` and `end_date` (nullable, meaning still active if null) let you know what the patient is currently on and what they were on in the past. Your simulation engine uses this for BOOLEAN criteria like "no prior anti-CD20 therapy" and NOT_WITHIN criteria like "no immunosuppressant within 6 months." You check: is there a medication matching the criterion where `end_date` is null or within the time window?
+
+- **`conditions`** — Diagnosed medical conditions for each patient, coded with ICD-10 codes. Used for inclusion criteria like "must have confirmed diagnosis of rheumatoid arthritis" (check if the patient has the relevant ICD code) and exclusion criteria like "no active malignancy" (check if any oncology-related ICD codes exist). The `onset_date` matters for temporal checks.
+
+- **`simulations`** — One row per full simulation run. Links a specific protocol to a specific patient — "we ran Protocol B's criteria against Patient 7." The `overall_risk` (HIGH/MEDIUM/LOW), `risk_score` (0-1 normalized), and `compatibility_score` (0-100 percentage) are the headline numbers shown at the top of the simulation results page. `created_by_id` tracks who ran it. You can run multiple simulations for the same patient-protocol pair — for example, before and after enriching a patient's data with new documents.
+
+- **`evaluations`** — The detailed results matrix. One row per criterion per timepoint per simulation. If a simulation checks 15 criteria across 6 timepoints, that's 90 evaluation rows. Each row records the `status` (PASS/BORDERLINE/FAIL), the `projected_value` at that week, the `threshold` it was checked against, the `margin_percent` (how far above or below the threshold), and the `confidence` of the projection. This is what powers the timeline grid visualization — each colored cell in that grid is one evaluation row.
+
+- **`reasoning_traces`** — Natural language explanations attached to individual evaluations. Only generated for BORDERLINE and FAIL evaluations — PASS evaluations don't need explanations. Each trace contains the `explanation` (the 2-3 sentence plain language description), `risk_factors` (JSON array of contributing factors), `suggestion` (recommended action like "consider nephrology consult"), and `confidence_note` (like "based on 6 data points over 5 months"). This is what appears when a coordinator clicks on a yellow or red cell in the timeline grid.
+
+So the data flow through the tables goes: **users** → creates **protocols** → extraction produces **criteria**. Separately, **users** → creates **patients** → enrichment adds **lab_results**, **medications**, **conditions**. Then the simulation engine reads **criteria** + **patient data** → writes to **simulations** + **evaluations** → reasoning engine writes **reasoning_traces** linked to evaluations.
+
 ## Local development setup
 
 ## 1. Prerequisites
@@ -683,3 +707,67 @@ Suggested next implementation milestones:
 ## License / hackathon note
 
 This repository is structured as a hackathon foundation and is optimized for rapid extension. It is not yet production hardened for PHI handling, clinical validation, or regulated deployment.
+
+## Recent implementation update
+
+The protocol workflow is no longer placeholder-only. The backend now includes:
+- `GroqLLMService` in `backend/app/services/llm.py` for Groq chat completions with retries, timing logs, and rate-limit handling
+- `PDFParserService` in `backend/app/services/pdf_parser.py` for protocol PDF text extraction and section splitting
+- `CriteriaExtractorService` in `backend/app/services/extractor.py` for the end-to-end PDF -> prompt -> JSON -> validated criterion pipeline
+- prompt definitions in `backend/app/core/prompts.py`
+- protocol and criterion APIs backed by the database instead of `501` placeholders
+
+### Protocol routes now implemented
+
+| Method | Path | Purpose | Auth | Status |
+|---|---|---|---|---|
+| `POST` | `/api/v1/protocols/upload` | Upload a protocol PDF and run criteria extraction | Yes | Implemented |
+| `GET` | `/api/v1/protocols` | List uploaded protocols | Yes | Implemented |
+| `GET` | `/api/v1/protocols/{protocol_id}` | Fetch a protocol with its extracted criteria | Yes | Implemented |
+| `GET` | `/api/v1/protocols/{protocol_id}/criteria` | Fetch criteria for a protocol | Yes | Implemented |
+| `PATCH` | `/api/v1/criteria/{criterion_id}` | Manually edit one extracted criterion | Yes | Implemented |
+| `POST` | `/api/v1/protocols/{protocol_id}/confirm` | Confirm reviewed criteria and mark the protocol ready for screening | Yes | Implemented |
+
+### Auth sync update
+
+The Clerk auth sync now reads custom JWT claims for:
+- `email`
+- `first_name`
+- `last_name`
+
+On each authenticated request, the backend now updates the local `users` row with the latest Clerk email, names, and `last_login_at` instead of keeping the old fallback `@clerk.local` address when the claims are present.
+
+### Environment variables
+
+Backend local and deployed environments now require:
+
+```env
+GROQ_API_KEY=
+```
+
+This is used by the protocol extraction pipeline in `GroqLLMService`.
+
+### Verification commands used for this implementation
+
+Backend:
+```powershell
+cd backend
+uv sync
+$env:UV_CACHE_DIR=(Resolve-Path '.uv-cache').Path
+uv run python -m compileall app
+uv run python -c "from app.main import app; print(app.title)"
+```
+
+Frontend:
+```powershell
+cd frontend
+bun run lint
+bun run build
+```
+
+Verification notes:
+- `bun run lint` passed.
+- backend compile verification passed.
+- backend import smoke test passed by importing `app.main` successfully.
+- `bun run build` compiled successfully and completed TypeScript, but the process ended with a sandbox `spawn EPERM` after that compilation step.
+- live Clerk sign-in, Supabase row verification, Groq extraction against real PDFs, and curl endpoint checks still require a local runtime with valid `.env` credentials.
