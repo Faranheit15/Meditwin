@@ -1,4 +1,4 @@
-"use client";
+ï»¿"use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
@@ -210,7 +210,7 @@ export default function ProtocolDetailPage() {
               <ProtocolStatusBadge status={protocol.status} />
             </div>
             <p className="text-sm text-muted-foreground">
-              Version {protocol.version} • {protocol.criteriaCount} criteria • uploaded {formatDate(protocol.createdAt)}
+              Version {protocol.version} | {protocol.criteriaCount} criteria | uploaded {formatDate(protocol.createdAt)}
             </p>
             {error ? <p className="text-sm text-rose-300">{error}</p> : null}
           </div>
