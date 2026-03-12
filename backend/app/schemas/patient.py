@@ -39,5 +39,6 @@ class PatientRead(CamelModel):
     lab_results: list[LabResultRead] = []
     medications: list[MedicationRead] = []
     conditions: list[ConditionRead] = []
+    fail_reasons: list[str] = []
     created_at: datetime
     updated_at: datetime

@@ -11,8 +11,8 @@ from app.models.base import Base, TimestampMixin, UUIDMixin
 
 
 class Sex(str, Enum):
-    MALE = "M"
-    FEMALE = "F"
+    MALE = "MALE"
+    FEMALE = "FEMALE"
 
 
 class RiskLevel(str, Enum):

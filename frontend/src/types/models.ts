@@ -47,13 +47,14 @@ export interface PatientProfile {
   id: string;
   name: string;
   age: number;
-  sex: "M" | "F";
+  sex: "MALE" | "FEMALE";
   primaryDiagnosis: string;
   preScreenScore: number | null;
   riskLevel: "HIGH" | "MEDIUM" | "LOW" | null;
   labResults: LabResult[];
   medications: Medication[];
   conditions: Condition[];
+  failReasons?: string[];
 }
 
 export interface LabResult {
@@ -78,36 +79,56 @@ export interface Condition {
   onsetDate: string;
 }
 
-export interface SimulationResult {
+export interface PreScreenResponse {
+  protocolId: string;
+  totalPatients: number;
+  results: PreScreenPatientResult[];
+}
+
+export interface PreScreenPatientResult {
+  id: string;
+  name: string;
+  age: number;
+  sex: "MALE" | "FEMALE";
+  primaryDiagnosis: string;
+  preScreenScore: number | null;
+  riskLevel: "HIGH" | "MEDIUM" | "LOW" | null;
+  failReasons: string[];
+}
+
+export interface SimulationResponse {
   id: string;
   protocolId: string;
   patientId: string;
   overallRisk: "HIGH" | "MEDIUM" | "LOW";
   riskScore: number;
   compatibilityScore: number;
-  timeline: TimePointResult[];
+  evaluations: EvaluationResponse[];
   createdAt: string;
 }
 
-export interface TimePointResult {
-  week: number;
-  evaluations: Evaluation[];
-}
-
-export interface Evaluation {
+export interface EvaluationResponse {
+  id: string;
   criterionId: string;
   criterionText: string;
+  category: "INCLUSION" | "EXCLUSION";
+  week: number;
   status: "PASS" | "BORDERLINE" | "FAIL";
   projectedValue: number | null;
   threshold: number | null;
   marginPercent: number;
   confidence: number;
+  parameter: string;
+  operator: string;
   reasoning: ReasoningTrace | null;
 }
 
 export interface ReasoningTrace {
+  id?: string;
   explanation: string;
   riskFactors: string[];
   suggestion: string | null;
   confidenceNote: string;
 }
+
+export type SimulationResult = SimulationResponse;

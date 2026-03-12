@@ -1,10 +1,10 @@
-import type { PaginationParams } from "@/types/common";
 import type {
   CriterionRule,
   PatientProfile,
+  PreScreenResponse,
   Protocol,
   ProtocolWithCriteria,
-  SimulationResult,
+  SimulationResponse,
   User,
 } from "@/types/models";
 
@@ -40,15 +40,6 @@ export interface UpdateCriterionPayload {
   confidence?: number | null;
 }
 
-export interface PreScreenPayload {
-  protocolId: string;
-}
-
-export interface FullSimulationPayload {
-  protocolId: string;
-  patientId: string;
-}
-
 export interface AuthAPI {
   getMe: () => Promise<APIResponse<User>>;
 }
@@ -66,14 +57,14 @@ export interface ProtocolAPI {
 }
 
 export interface PatientAPI {
-  list: (params?: PaginationParams) => Promise<PaginatedResponse<PatientProfile>>;
+  list: (protocolId?: string) => Promise<APIResponse<PatientProfile[]>>;
   getById: (id: string) => Promise<APIResponse<PatientProfile>>;
   uploadDocument: (patientId: string, file: File) => Promise<APIResponse<null>>;
   confirmEnrichment: (patientId: string) => Promise<APIResponse<null>>;
 }
 
 export interface SimulationAPI {
-  preScreen: (protocolId: string) => Promise<APIResponse<null>>;
-  runFull: (protocolId: string, patientId: string) => Promise<APIResponse<null>>;
-  getResult: (simulationId: string) => Promise<APIResponse<SimulationResult>>;
+  preScreen: (protocolId: string) => Promise<APIResponse<PreScreenResponse>>;
+  runFull: (protocolId: string, patientId: string) => Promise<APIResponse<SimulationResponse>>;
+  getResult: (simulationId: string) => Promise<APIResponse<SimulationResponse>>;
 }

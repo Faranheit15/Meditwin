@@ -13,6 +13,6 @@ router.include_router(auth_router, prefix="/auth", tags=["auth"])
 router.include_router(criteria_router, prefix="/criteria", tags=["criteria"])
 router.include_router(protocols_router, prefix="/protocols", tags=["protocols"])
 router.include_router(patients_router, prefix="/patients", tags=["patients"])
-router.include_router(simulation_router, prefix="/simulation", tags=["simulation"])
+router.include_router(simulation_router, tags=["simulation"])
 
 __all__ = ["router"]

@@ -22,10 +22,10 @@ class CriterionCategory(str, Enum):
 
 
 class CriterionOperator(str, Enum):
-    GTE = ">="
-    LTE = "<="
-    EQ = "=="
-    NEQ = "!="
+    GTE = "GTE"
+    LTE = "LTE"
+    EQ = "EQ"
+    NEQ = "NEQ"
     NOT_WITHIN = "NOT_WITHIN"
     STABLE = "STABLE"
     BOOLEAN = "BOOLEAN"

@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { apiRequest } from "@/lib/axios";
 import type {
@@ -9,8 +9,15 @@ import type {
   SimulationAPI,
   UpdateCriterionPayload,
 } from "@/types/api";
-import type { PaginationParams } from "@/types/common";
-import type { CriterionRule, Protocol, ProtocolWithCriteria, SimulationResult, User } from "@/types/models";
+import type {
+  CriterionRule,
+  PatientProfile,
+  PreScreenResponse,
+  Protocol,
+  ProtocolWithCriteria,
+  SimulationResponse,
+  User,
+} from "@/types/models";
 
 let protocolsCache: APIResponse<Protocol[]> | null = null;
 let protocolsInFlight: Promise<APIResponse<Protocol[]>> | null = null;
@@ -111,16 +118,16 @@ export const protocolAPI: ProtocolAPI = {
 };
 
 export const patientAPI: PatientAPI = {
-  async list(params?: PaginationParams) {
-    return apiRequest({
+  async list(protocolId?: string): Promise<APIResponse<PatientProfile[]>> {
+    return apiRequest<APIResponse<PatientProfile[]>>({
       method: "GET",
       url: "/patients",
-      params,
+      params: protocolId ? { protocol_id: protocolId } : undefined,
     });
   },
 
-  async getById(id: string) {
-    return apiRequest({
+  async getById(id: string): Promise<APIResponse<PatientProfile>> {
+    return apiRequest<APIResponse<PatientProfile>>({
       method: "GET",
       url: `/patients/${id}`,
     });
@@ -149,26 +156,28 @@ export const patientAPI: PatientAPI = {
 } satisfies PatientAPI;
 
 export const simulationAPI: SimulationAPI = {
-  async preScreen(protocolId: string): Promise<APIResponse<null>> {
-    return apiRequest<APIResponse<null>>({
+  async preScreen(protocolId: string): Promise<APIResponse<PreScreenResponse>> {
+    return apiRequest<APIResponse<PreScreenResponse>>({
       method: "POST",
-      url: "/simulation/pre-screen",
-      data: { protocolId },
+      url: "/simulate/pre-screen",
+      data: { protocol_id: protocolId },
+      timeout: 60000,
     });
   },
 
-  async runFull(protocolId: string, patientId: string): Promise<APIResponse<null>> {
-    return apiRequest<APIResponse<null>>({
+  async runFull(protocolId: string, patientId: string): Promise<APIResponse<SimulationResponse>> {
+    return apiRequest<APIResponse<SimulationResponse>>({
       method: "POST",
-      url: "/simulation/full",
-      data: { protocolId, patientId },
+      url: "/simulate/full",
+      data: { protocol_id: protocolId, patient_id: patientId },
+      timeout: 60000,
     });
   },
 
-  async getResult(simulationId: string): Promise<APIResponse<SimulationResult>> {
-    return apiRequest<APIResponse<SimulationResult>>({
+  async getResult(simulationId: string): Promise<APIResponse<SimulationResponse>> {
+    return apiRequest<APIResponse<SimulationResponse>>({
       method: "GET",
-      url: `/simulation/${simulationId}`,
+      url: `/simulations/${simulationId}`,
     });
   },
 };

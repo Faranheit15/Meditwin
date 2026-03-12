@@ -27,6 +27,32 @@ SCREENING_ONLY_PARAMETERS = {
     "informed_consent", "compliance", "pregnancy_or_breastfeeding",
 }
 
+PARAMETER_NORMALIZATION = {
+    "platelet count": "platelets",
+    "platelet_count": "platelets",
+    "white blood cell count": "WBC",
+    "white_blood_cell_count": "WBC",
+    "wbc": "WBC",
+    "hba1c": "HbA1c",
+    "egfr": "eGFR",
+    "alt": "ALT",
+    "ast": "AST",
+    "bmi": "BMI",
+    "anti-cd20 therapy": "anti_cd20_therapy",
+    "anti_cd20_therapy": "anti_cd20_therapy",
+    "anti-CD20 therapy": "anti_cd20_therapy",
+    "anti_CD20_therapy": "anti_cd20_therapy",
+    "informed consent": "informed_consent",
+    "study compliance": "compliance",
+    "contraception": "contraception",
+    "effective_contraception": "contraception",
+}
+
+ALWAYS_REQUIRES_REVIEW = {
+    "informed_consent", "compliance", "contraception",
+    "effective_contraception", "childbearing_contraception",
+    "study_compliance",
+}
 
 class CriteriaExtractorService:
     """Orchestrates the full extraction pipeline: PDF -> text -> LLM -> structured criteria."""
@@ -58,8 +84,10 @@ class CriteriaExtractorService:
         criteria_dicts = self._parse_llm_response(raw_response)
         validated = self._validate_criteria(criteria_dicts, protocol_id)
 
-        # Post-process: fix eval_schedules that the LLM got wrong
+        # Post-process: normalize parameter names first, then fix schedules and review flags
+        validated = self._normalize_parameters(validated)
         validated = self._fix_eval_schedules(validated, visit_weeks)
+        validated = self._fix_requires_review(validated)
 
         logger.info(
             "Criteria extraction completed",
@@ -143,6 +171,55 @@ class CriteriaExtractorService:
             logger.info(
                 f"Post-processing fixed {fixed_count} eval_schedules",
                 event="eval_schedule_fixes_applied",
+                fixed_count=fixed_count,
+            )
+        return criteria
+
+    def _normalize_parameters(self, criteria: list[CriterionCreate]) -> list[CriterionCreate]:
+        """Normalize parameter names to match the patient database column names."""
+        fixed_count = 0
+        for criterion in criteria:
+            normalized = PARAMETER_NORMALIZATION.get(criterion.parameter.lower().strip())
+            if normalized and normalized != criterion.parameter:
+                logger.info(
+                    "Normalized parameter name",
+                    event="parameter_normalized",
+                    original=criterion.parameter,
+                    normalized=normalized,
+                )
+                criterion.parameter = normalized
+                fixed_count += 1
+        if fixed_count > 0:
+            logger.info(
+                f"Post-processing normalized {fixed_count} parameter names",
+                event="parameter_normalizations_applied",
+                fixed_count=fixed_count,
+            )
+        return criteria
+
+    def _fix_requires_review(self, criteria: list[CriterionCreate]) -> list[CriterionCreate]:
+        """Fix requires_review flags based on known parameter types."""
+        fixed_count = 0
+        for criterion in criteria:
+            param_lower = criterion.parameter.lower().strip()
+
+            # Force requires_review for known subjective criteria
+            if param_lower in {p.lower() for p in ALWAYS_REQUIRES_REVIEW}:
+                if not criterion.requires_review:
+                    criterion.requires_review = True
+                    fixed_count += 1
+
+            # Force requires_review = False for known automatable criteria
+            all_automatable = {p.lower() for p in MONITORED_PARAMETERS | SCREENING_ONLY_PARAMETERS}
+            if param_lower in all_automatable:
+                if criterion.requires_review:
+                    criterion.requires_review = False
+                    fixed_count += 1
+
+        if fixed_count > 0:
+            logger.info(
+                f"Post-processing fixed {fixed_count} requires_review flags",
+                event="requires_review_fixes_applied",
                 fixed_count=fixed_count,
             )
         return criteria

@@ -7,7 +7,14 @@ from app.schemas.protocol import (
     ProtocolResponse,
     ProtocolWithCriteriaResponse,
 )
-from app.schemas.simulation import FullSimulationRequest, PreScreenRequest, SimulationRead
+from app.schemas.simulation import (
+    EvaluationResponse,
+    FullSimulationRequest,
+    PreScreenPatientResult,
+    PreScreenRequest,
+    PreScreenResponse,
+    SimulationResponse,
+)
 from app.schemas.user import UserRead
 
 __all__ = [
@@ -16,13 +23,16 @@ __all__ = [
     "CriterionCreate",
     "CriterionResponse",
     "CriterionUpdate",
+    "EvaluationResponse",
     "FullSimulationRequest",
     "PaginatedResponse",
     "PaginationParams",
     "PatientRead",
+    "PreScreenPatientResult",
     "PreScreenRequest",
+    "PreScreenResponse",
     "ProtocolResponse",
     "ProtocolWithCriteriaResponse",
-    "SimulationRead",
+    "SimulationResponse",
     "UserRead",
 ]

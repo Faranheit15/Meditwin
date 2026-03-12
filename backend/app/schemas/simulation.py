@@ -1,49 +1,76 @@
 from __future__ import annotations
 
 from datetime import datetime
-from uuid import UUID
+
+from pydantic import ConfigDict, Field
 
 from app.schemas.common import CamelModel
 
 
-class ReasoningTraceRead(CamelModel):
+class PreScreenRequest(CamelModel):
+    protocol_id: str
+
+
+class FullSimulationRequest(CamelModel):
+    protocol_id: str
+    patient_id: str
+
+
+class PreScreenPatientResult(CamelModel):
+    id: str
+    name: str
+    age: int
+    sex: str
+    primary_diagnosis: str
+    pre_screen_score: float | None
+    risk_level: str | None
+    fail_reasons: list[str] = Field(default_factory=list)
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class PreScreenResponse(CamelModel):
+    protocol_id: str
+    total_patients: int
+    results: list[PreScreenPatientResult] = Field(default_factory=list)
+
+
+class ReasoningTraceResponse(CamelModel):
+    id: str
     explanation: str
-    risk_factors: list[str]
+    risk_factors: list[str] = Field(default_factory=list)
     suggestion: str | None
     confidence_note: str
 
+    model_config = ConfigDict(from_attributes=True)
 
-class EvaluationRead(CamelModel):
-    criterion_id: UUID
+
+class EvaluationResponse(CamelModel):
+    id: str
+    criterion_id: str
     criterion_text: str
+    category: str
+    week: int
     status: str
     projected_value: float | None
     threshold: float | None
     margin_percent: float
     confidence: float
-    reasoning: ReasoningTraceRead | None = None
+    parameter: str
+    operator: str
+    reasoning: ReasoningTraceResponse | None = None
+
+    model_config = ConfigDict(from_attributes=True)
 
 
-class TimePointResult(CamelModel):
-    week: int
-    evaluations: list[EvaluationRead]
-
-
-class SimulationRead(CamelModel):
-    id: UUID
-    protocol_id: UUID
-    patient_id: UUID
+class SimulationResponse(CamelModel):
+    id: str
+    protocol_id: str
+    patient_id: str
     overall_risk: str
     risk_score: float
     compatibility_score: float
-    timeline: list[TimePointResult]
+    evaluations: list[EvaluationResponse] = Field(default_factory=list)
     created_at: datetime
 
-
-class PreScreenRequest(CamelModel):
-    protocol_id: UUID
-
-
-class FullSimulationRequest(CamelModel):
-    protocol_id: UUID
-    patient_id: UUID
+    model_config = ConfigDict(from_attributes=True)

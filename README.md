@@ -24,7 +24,7 @@ What is still placeholder / not implemented yet:
 - Protocol PDF upload and extraction pipeline
 - Criteria editing persistence
 - Patient CRUD and document ingestion workflows
-- Simulation execution engine and reasoning trace generation
+- Automated reasoning trace generation
 - Clerk webhook processing
 - Production-grade file storage, audit history, and monitoring
 
@@ -262,13 +262,13 @@ All backend routes are mounted under:
 | `POST` | `/api/v1/protocols/upload` | Protocol upload placeholder | Yes | Placeholder `501` |
 | `GET` | `/api/v1/protocols/{protocol_id}/criteria` | Criteria fetch placeholder | Yes | Placeholder `501` |
 | `PATCH` | `/api/v1/protocols/criteria/{criterion_id}` | Criterion update placeholder | Yes | Placeholder `501` |
-| `GET` | `/api/v1/patients` | Patient list placeholder | Yes | Placeholder `501` |
-| `GET` | `/api/v1/patients/{patient_id}` | Patient detail placeholder | Yes | Placeholder `501` |
+| `GET` | `/api/v1/patients` | Patient list with latest labs and optional protocol ordering | Yes | Implemented |
+| `GET` | `/api/v1/patients/{patient_id}` | Patient detail with labs, medications, and conditions | Yes | Implemented |
 | `POST` | `/api/v1/patients/{patient_id}/documents` | Patient document upload placeholder | Yes | Placeholder `501` |
 | `POST` | `/api/v1/patients/{patient_id}/confirm-enrichment` | Enrichment confirmation placeholder | Yes | Placeholder `501` |
-| `POST` | `/api/v1/simulation/pre-screen` | Pre-screen placeholder | Yes | Placeholder `501` |
-| `POST` | `/api/v1/simulation/full` | Full simulation placeholder | Yes | Placeholder `501` |
-| `GET` | `/api/v1/simulation/{simulation_id}` | Simulation fetch placeholder | Yes | Placeholder `501` |
+| `POST` | `/api/v1/simulate/pre-screen` | Bulk pre-screen all patients against one confirmed protocol | Yes | Implemented |
+| `POST` | `/api/v1/simulate/full` | Run and persist a full patient-protocol simulation | Yes | Implemented |
+| `GET` | `/api/v1/simulations/{simulation_id}` | Fetch a stored simulation with evaluations and traces | Yes | Implemented |
 
 ### Domain models currently defined
 
@@ -771,3 +771,73 @@ Verification notes:
 - backend import smoke test passed by importing `app.main` successfully.
 - `bun run build` compiled successfully and completed TypeScript, but the process ended with a sandbox `spawn EPERM` after that compilation step.
 - live Clerk sign-in, Supabase row verification, Groq extraction against real PDFs, and curl endpoint checks still require a local runtime with valid `.env` credentials.
+
+## Day 3 simulation implementation
+
+The patient screening and simulation pipeline is now implemented in the backend and wired into the dashboard patients page.
+
+### New backend modules
+
+- `backend/app/core/twin.py` - Digital Twin engine for lab trend fitting and forward projection
+- `backend/app/core/simulator.py` - Deterministic rule engine for criterion-by-week evaluation and risk scoring
+- `backend/app/core/pre_screener.py` - Fast bulk pre-screener using current values only
+- `backend/app/utils/clinical_mappings.py` - Shared ICD and medication matching utilities used by the twin and pre-screener
+- `backend/app/schemas/simulation.py` - Request and response schemas for pre-screen and full simulation APIs
+
+### New API endpoints
+
+- `POST /api/v1/simulate/pre-screen` - Load a confirmed protocol, score every patient, update `patients.pre_screen_score` and `patients.risk_level`, and return ranked results
+- `POST /api/v1/simulate/full` - Build a digital twin for one patient, evaluate the full timeline, persist `simulations` and `evaluations`, and return the stored result
+- `GET /api/v1/simulations/{id}` - Return a stored simulation with criterion metadata and any reasoning traces already attached
+
+### Architecture notes
+
+- The Digital Twin and Simulation Runner are pure Python and deterministic. No LLM calls are involved in projection or rule evaluation.
+- Pre-screen uses current values only, skips `STABLE` checks, and is optimized for fast cohort ranking.
+- Full simulation computes linear regression trends with `numpy`, projects values forward by week, and evaluates each scheduled criterion timepoint.
+- Condition matching uses ICD-10 prefix and keyword matching through `CONDITION_MAP`.
+- Medication matching uses shared `MEDICATION_MAP` name matching and date window overlap logic.
+
+### Key design decisions
+
+- `BORDERLINE_MARGIN = 0.20` defines the 20% threshold proximity zone for numeric criteria.
+- Projection confidence uses `r_squared * (1 / (1 + 0.02 * weeks))`.
+- Risk score is the normalized weighted sum of `FAIL = 1.0`, `BORDERLINE = 0.4`, and `PASS = 0.0`.
+- Overall risk classification is `HIGH > 0.6`, `MEDIUM > 0.3`, `LOW <= 0.3`.
+
+### Frontend wiring
+
+- `frontend/src/app/(dashboard)/patients/page.tsx` now reads `protocol_id` from the query string, runs pre-screen automatically, renders ranked patient results, supports expandable detail panels, and triggers `Run Simulation`.
+- `frontend/src/lib/api.ts` now targets `/simulate/pre-screen`, `/simulate/full`, and `/simulations/{id}` with 60-second request timeouts on the simulation actions.
+- `frontend/src/types/models.ts` and `frontend/src/types/api.ts` now include the pre-screen and full simulation response contracts used by the dashboard.
+
+### Validation commands
+
+Backend:
+
+```powershell
+cd backend
+uv sync
+$env:UV_CACHE_DIR=(Resolve-Path '.uv-cache').Path
+uv run python -m compileall app
+uv run python -c "from app.main import app; print(app.title)"
+uv run fastapi dev app/main.py
+```
+
+Frontend:
+
+```powershell
+cd frontend
+bun run lint
+bunx tsc --noEmit
+bun dev
+```
+
+### Runtime checks for seeded demo data
+
+- `POST /api/v1/simulate/pre-screen` should return all 10 seeded patients ranked by `preScreenScore`
+- Robert Chen, Aisha Patel, and Carlos Rivera should land in the strongest cohort bucket with low risk
+- Margaret O'Brien should screen as medium risk and remain a good demo patient for a borderline full simulation
+- William Hartley and Luis Gutierrez should surface immediate fail reasons during pre-screen
+- Margaret O'Brien full simulation should show eGFR moving from pass into borderline and then fail around weeks 12-16
+- William Hartley full simulation should fail eGFR at week 0

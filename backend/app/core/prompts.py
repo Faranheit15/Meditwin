@@ -59,6 +59,31 @@ RULES FOR requires_review:
   - Specific temporal rules like "no X therapy within Y months" (can be checked via medication dates)
 - Do NOT mark diagnosis checks as requires_review. "Confirmed diagnosis of Type 2 Diabetes" is a database lookup against ICD-10 code E11.9, NOT a subjective assessment.
 
+RULES FOR "× UPPER LIMIT OF NORMAL" (ULN) CRITERIA:
+When a criterion says "> N× upper limit of normal", you MUST compute the actual threshold value.
+Standard ULN reference values:
+- ALT: 40 U/L → "ALT > 3× ULN" means threshold = 120.0, unit = "U/L"
+- AST: 40 U/L → "AST > 3× ULN" means threshold = 120.0, unit = "U/L"
+- Bilirubin: 1.2 mg/dL → "Bilirubin > 2× ULN" means threshold = 2.4, unit = "mg/dL"
+- ALP: 120 U/L
+NEVER use the multiplier as the threshold. ALWAYS compute: threshold = multiplier × ULN value.
+WRONG: {"parameter": "ALT", "threshold": 3.0} ← This is the multiplier, NOT the threshold
+CORRECT: {"parameter": "ALT", "threshold": 120.0} ← This is 3 × 40 ULN
+
+RULES FOR PARAMETER NAMING:
+Use these exact parameter names to match the patient database:
+- eGFR (not "estimated GFR" or "glomerular filtration rate")
+- HbA1c (not "glycated hemoglobin")
+- ALT, AST (not "alanine aminotransferase")
+- WBC (not "white blood cell count")
+- platelets (not "platelet count")
+- hemoglobin (not "haemoglobin")
+- BMI (not "body mass index")
+- creatinine
+- anti_cd20_therapy (not "anti-CD20 therapy" or "rituximab")
+- type_2_diabetes, type_1_diabetes (for diagnosis checks)
+- rheumatoid_arthritis (for RA diagnosis)
+
 EXAMPLE:
 Input text: "Estimated glomerular filtration rate (eGFR) ≥ 45 mL/min/1.73m² at screening and stable through Week 24"
 Trial timeline: Screening, Week 4, Week 8, Week 12, Week 24
