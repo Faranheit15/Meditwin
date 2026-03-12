@@ -2,7 +2,7 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
-@custom-variant dark (&:is(.dark *));
+@custom-variant dark (&:is(.dark, .dark *));
 
 @theme inline {
   --color-background: var(--background);
@@ -76,6 +76,41 @@
   --scrollbar-corner: oklch(0.18 0.02 244 / 85%);
 }
 
+/* ── Light theme overrides ─────────────────────────────────────────────────── */
+/* Applied when next-themes sets class="light" on <html>                        */
+.light {
+  --background: oklch(0.97 0.005 248);
+  --foreground: oklch(0.18 0.03 244);
+  --card: oklch(0.94 0.006 246 / 95%);
+  --card-foreground: oklch(0.18 0.03 244);
+  --popover: oklch(0.98 0.004 245 / 98%);
+  --popover-foreground: oklch(0.18 0.03 244);
+  --primary: oklch(26.333% 0.07261 248.987);
+  --primary-foreground: oklch(0.98 0.01 248);
+  --secondary: oklch(0.88 0.01 248);
+  --secondary-foreground: oklch(0.22 0.03 248);
+  --muted: oklch(0.91 0.008 243);
+  --muted-foreground: oklch(0.46 0.03 246);
+  --accent: oklch(0.88 0.05 54);
+  --accent-foreground: oklch(0.3 0.06 50);
+  --destructive: oklch(0.54 0.19 25);
+  --border: oklch(0.78 0.02 243 / 70%);
+  --input: oklch(0.84 0.015 243 / 80%);
+  --ring: oklch(0.55 0.13 197 / 55%);
+  --sidebar: oklch(0.93 0.008 244 / 97%);
+  --sidebar-foreground: oklch(0.18 0.03 244);
+  --sidebar-primary: oklch(0.55 0.13 197);
+  --sidebar-primary-foreground: oklch(0.98 0.01 248);
+  --sidebar-accent: oklch(0.88 0.01 248);
+  --sidebar-accent-foreground: oklch(0.22 0.03 248);
+  --sidebar-border: oklch(0.78 0.02 243 / 70%);
+  --sidebar-ring: oklch(0.55 0.13 197 / 55%);
+  --scrollbar-thumb: oklch(0.72 0.02 243 / 88%);
+  --scrollbar-thumb-hover: oklch(0.58 0.05 198 / 92%);
+  --scrollbar-track: oklch(0.88 0.01 244 / 80%);
+  --scrollbar-corner: oklch(0.9 0.008 244 / 85%);
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -98,6 +133,13 @@
       linear-gradient(180deg, rgba(9, 17, 33, 0.94), rgba(11, 18, 31, 1));
   }
 
+  .light body {
+    background-image:
+      radial-gradient(circle at top left, rgba(28, 140, 173, 0.06), transparent 32%),
+      radial-gradient(circle at top right, rgba(201, 146, 49, 0.04), transparent 22%),
+      linear-gradient(180deg, rgba(248, 250, 252, 1), rgba(241, 245, 249, 1));
+  }
+
   ::selection {
     background: rgba(79, 209, 225, 0.34);
     color: white;
@@ -113,11 +155,9 @@
   }
 
   *::-webkit-scrollbar-thumb {
-    background: linear-gradient(
-      180deg,
-      color-mix(in oklab, var(--scrollbar-thumb-hover) 30%, var(--scrollbar-thumb)),
-      var(--scrollbar-thumb)
-    );
+    background: linear-gradient(180deg,
+        color-mix(in oklab, var(--scrollbar-thumb-hover) 30%, var(--scrollbar-thumb)),
+        var(--scrollbar-thumb));
     border: 2px solid transparent;
     border-radius: 999px;
     background-clip: padding-box;
@@ -125,11 +165,9 @@
   }
 
   *::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(
-      180deg,
-      var(--scrollbar-thumb-hover),
-      color-mix(in oklab, var(--scrollbar-thumb-hover) 70%, var(--scrollbar-thumb))
-    );
+    background: linear-gradient(180deg,
+        var(--scrollbar-thumb-hover),
+        color-mix(in oklab, var(--scrollbar-thumb-hover) 70%, var(--scrollbar-thumb)));
     border: 2px solid transparent;
     background-clip: padding-box;
   }

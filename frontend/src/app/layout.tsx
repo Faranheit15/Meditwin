@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
 
 import { ErrorBoundary } from "@/components/common/ErrorBoundary";
+import { ThemeProvider } from "@/components/theme-provider";
 import { APP_NAME, APP_TAGLINE } from "@/constants/config";
 
 import "./globals.css";
@@ -28,9 +29,16 @@ export default function RootLayout({
 }>) {
   return (
     <ClerkProvider>
-      <html lang="en" className="dark" suppressHydrationWarning>
+      <html lang="en" suppressHydrationWarning>
         <body>
-          <ErrorBoundary>{children}</ErrorBoundary>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="dark"
+            enableSystem={false}
+            disableTransitionOnChange
+          >
+            <ErrorBoundary>{children}</ErrorBoundary>
+          </ThemeProvider>
         </body>
       </html>
     </ClerkProvider>

@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import { Bell, Menu, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { ROUTES } from "@/constants/routes";
 
 interface HeaderProps {
@@ -58,7 +59,8 @@ export function Header({ collapsed, onOpenMobileNav, onToggleSidebar }: HeaderPr
             <p className="max-w-2xl text-sm text-muted-foreground">{subtitle}</p>
           </div>
         </div>
-        <div className="hidden sm:flex">
+        <div className="hidden sm:flex items-center gap-2">
+          <ThemeToggle />
           <Button variant="outline">
             <Bell className="h-4 w-4" />
             Reasoning Alerts
