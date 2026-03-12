@@ -40,6 +40,7 @@ class GroqLLMService:
                     self.client.chat.completions.create,
                     model=self.model,
                     temperature=temperature,
+                    max_tokens=4096,
                     response_format={"type": "json_object"},
                     messages=[
                         {"role": "system", "content": system_prompt},

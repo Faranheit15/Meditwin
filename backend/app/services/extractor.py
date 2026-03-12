@@ -14,6 +14,19 @@ from app.services.pdf_parser import PDFParserService
 
 logger = get_logger(__name__)
 
+# Parameters that are lab values / vitals and MUST be monitored across visits, not just screening
+MONITORED_PARAMETERS = {
+    "eGFR", "hemoglobin", "HbA1c", "ALT", "AST", "WBC", "platelets",
+    "creatinine", "blood_pressure", "heart_rate", "weight",
+    "fasting_glucose", "fasting_plasma_glucose",
+}
+
+# Parameters that are one-time checks at screening only
+SCREENING_ONLY_PARAMETERS = {
+    "age", "sex", "type_2_diabetes", "type_1_diabetes", "rheumatoid_arthritis", "BMI", 
+    "informed_consent", "compliance", "pregnancy_or_breastfeeding",
+}
+
 
 class CriteriaExtractorService:
     """Orchestrates the full extraction pipeline: PDF -> text -> LLM -> structured criteria."""
@@ -23,11 +36,17 @@ class CriteriaExtractorService:
         self.pdf_parser = pdf_parser
 
     async def extract_from_pdf(self, pdf_bytes: bytes, protocol_id: str) -> list[CriterionCreate]:
+        logger.info(">>> USING UPDATED EXTRACTOR WITH EVAL_SCHEDULE FIX <<<")
         full_text = self.pdf_parser.extract_text(pdf_bytes)
         sections = self.pdf_parser.extract_sections(full_text)
 
+        # Extract visit schedule as explicit week numbers for the LLM
+        timeline_text = sections.get("study_timeline", "")
+        visit_weeks = self._extract_visit_weeks(timeline_text or full_text)
+        timeline_for_prompt = self._format_timeline(visit_weeks)
+
         user_prompt = CRITERIA_EXTRACTION_USER_PROMPT.format(
-            timeline=sections.get("study_timeline", "Not found - infer from criteria text"),
+            timeline=timeline_for_prompt,
             inclusion_text=sections.get("inclusion_criteria", sections.get("full_text", "Not found")),
             exclusion_text=sections.get("exclusion_criteria", sections.get("full_text", "Not found")),
         )
@@ -39,13 +58,96 @@ class CriteriaExtractorService:
         criteria_dicts = self._parse_llm_response(raw_response)
         validated = self._validate_criteria(criteria_dicts, protocol_id)
 
+        # Post-process: fix eval_schedules that the LLM got wrong
+        validated = self._fix_eval_schedules(validated, visit_weeks)
+
         logger.info(
             "Criteria extraction completed",
             event="extract_complete",
             protocol_id=protocol_id,
             criteria_count=len(validated),
+            visit_weeks=visit_weeks,
         )
         return validated
+
+    # ── Timeline Extraction ─────────────────────────────────────────────
+
+    def _extract_visit_weeks(self, text: str) -> list[int]:
+        """Parse visit schedule from protocol text to get week numbers.
+        
+        Looks for patterns like:
+        - "Week 4", "Week 8", "Week 12"
+        - "Visit 2  Week 4"
+        - "Week 24 (Final)"
+        """
+        week_numbers: set[int] = set()
+
+        # Pattern: "Week N" or "Wk N"
+        week_pattern = re.findall(r"(?:Week|Wk)\s+(\d+)", text, re.IGNORECASE)
+        for w in week_pattern:
+            week_numbers.add(int(w))
+
+        # Always include screening (Week 0)
+        week_numbers.add(0)
+
+        if len(week_numbers) <= 1:
+            # Fallback: look for "Day N" and convert to weeks
+            day_pattern = re.findall(r"Day\s+(\d+)", text, re.IGNORECASE)
+            for d in day_pattern:
+                day_val = int(d)
+                if day_val > 0:
+                    week_numbers.add(round(day_val / 7))
+
+        if len(week_numbers) <= 1:
+            # Last resort: common Phase II/III schedules
+            logger.warning("Could not detect visit schedule, using default Phase II schedule")
+            return [0, 4, 8, 12, 16]
+
+        return sorted(week_numbers)
+
+    def _format_timeline(self, visit_weeks: list[int]) -> str:
+        """Format visit weeks into an explicit string for the LLM prompt."""
+        week_labels = []
+        for w in visit_weeks:
+            if w == 0:
+                week_labels.append("Screening (Week 0)")
+            else:
+                week_labels.append(f"Week {w}")
+        return f"Visit weeks: {', '.join(week_labels)}\nWeek numbers for eval_schedule: {visit_weeks}"
+
+    # ── Post-Processing Safety Net ──────────────────────────────────────
+
+    def _fix_eval_schedules(self, criteria: list[CriterionCreate], visit_weeks: list[int]) -> list[CriterionCreate]:
+        """Fix criteria where the LLM incorrectly assigned [0] to monitored parameters."""
+        fixed_count = 0
+        for criterion in criteria:
+            is_monitored = (
+                criterion.parameter.lower() in {p.lower() for p in MONITORED_PARAMETERS}
+                or criterion.operator == "STABLE"
+            )
+            is_screening_only = criterion.eval_schedule == [0]
+            is_not_boolean = criterion.operator not in ("BOOLEAN", "NOT_WITHIN")
+
+            if is_monitored and is_screening_only and is_not_boolean:
+                criterion.eval_schedule = visit_weeks
+                fixed_count += 1
+                logger.info(
+                    "Fixed eval_schedule for monitored parameter",
+                    event="eval_schedule_fixed",
+                    parameter=criterion.parameter,
+                    operator=criterion.operator,
+                    new_schedule=visit_weeks,
+                )
+
+        if fixed_count > 0:
+            logger.info(
+                f"Post-processing fixed {fixed_count} eval_schedules",
+                event="eval_schedule_fixes_applied",
+                fixed_count=fixed_count,
+            )
+        return criteria
+
+    # ── LLM Response Parsing ────────────────────────────────────────────
 
     def _parse_llm_response(self, response: str) -> list[dict[str, Any]]:
         cleaned = response.strip()
@@ -76,6 +178,8 @@ class CriteriaExtractorService:
             return json.loads(candidate)
         except json.JSONDecodeError:
             return None
+
+    # ── Criteria Validation ─────────────────────────────────────────────
 
     def _validate_criteria(self, criteria_dicts: list[dict[str, Any]], protocol_id: str) -> list[CriterionCreate]:
         validated: list[CriterionCreate] = []
