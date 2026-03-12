@@ -23,8 +23,8 @@ MONITORED_PARAMETERS = {
 
 # Parameters that are one-time checks at screening only
 SCREENING_ONLY_PARAMETERS = {
-    "age", "sex", "type_2_diabetes", "type_1_diabetes", "rheumatoid_arthritis", "BMI", 
-    "informed_consent", "compliance", "pregnancy_or_breastfeeding",
+    "age", "sex", "type_2_diabetes", "type_1_diabetes", "rheumatoid_arthritis", "BMI",
+    "pregnancy_or_breastfeeding",
 }
 
 PARAMETER_NORMALIZATION = {
@@ -46,12 +46,23 @@ PARAMETER_NORMALIZATION = {
     "study compliance": "compliance",
     "contraception": "contraception",
     "effective_contraception": "contraception",
+    "renal_function": "eGFR",
+    "renal function": "eGFR",
+    "malignancy_history": "malignancy",
+    "malignancy history": "malignancy",
+    "live_vaccine_administration": "live_vaccine",
+    "live vaccine administration": "live_vaccine",
+    "inadequate_response_to_conventional_dmard": "inadequate_dmard_response",
+    "methotrexate_therapy": "stable_methotrexate",
+    "prior_biologic_therapies":"prior_biologic_failures",
+    "willingness_to_comply": "compliance",
 }
 
 ALWAYS_REQUIRES_REVIEW = {
     "informed_consent", "compliance", "contraception",
     "effective_contraception", "childbearing_contraception",
-    "study_compliance",
+    "study_compliance", "inadequate_dmard_response",
+    "stable_methotrexate", "tuberculosis_screening",
 }
 
 class CriteriaExtractorService:
@@ -84,10 +95,12 @@ class CriteriaExtractorService:
         criteria_dicts = self._parse_llm_response(raw_response)
         validated = self._validate_criteria(criteria_dicts, protocol_id)
 
-        # Post-process: normalize parameter names first, then fix schedules and review flags
+        # Post-process: normalize parameter names first, then fix schedules, review flags, and thresholds
         validated = self._normalize_parameters(validated)
         validated = self._fix_eval_schedules(validated, visit_weeks)
         validated = self._fix_requires_review(validated)
+        validated = self._fix_thresholds(validated)
+        validated = self._fix_operators(validated)
 
         logger.info(
             "Criteria extraction completed",
@@ -200,17 +213,19 @@ class CriteriaExtractorService:
     def _fix_requires_review(self, criteria: list[CriterionCreate]) -> list[CriterionCreate]:
         """Fix requires_review flags based on known parameter types."""
         fixed_count = 0
+        always_review = {p.lower() for p in ALWAYS_REQUIRES_REVIEW}
+        all_automatable = {p.lower() for p in MONITORED_PARAMETERS | SCREENING_ONLY_PARAMETERS}
         for criterion in criteria:
             param_lower = criterion.parameter.lower().strip()
 
             # Force requires_review for known subjective criteria
-            if param_lower in {p.lower() for p in ALWAYS_REQUIRES_REVIEW}:
+            if param_lower in always_review:
                 if not criterion.requires_review:
                     criterion.requires_review = True
                     fixed_count += 1
+                continue
 
             # Force requires_review = False for known automatable criteria
-            all_automatable = {p.lower() for p in MONITORED_PARAMETERS | SCREENING_ONLY_PARAMETERS}
             if param_lower in all_automatable:
                 if criterion.requires_review:
                     criterion.requires_review = False
@@ -224,6 +239,69 @@ class CriteriaExtractorService:
             )
         return criteria
 
+    def _fix_thresholds(self, criteria: list[CriterionCreate]) -> list[CriterionCreate]:
+        """Fix thresholds where the LLM used raw values instead of database-unit values.
+        
+        The patient database stores platelets in ×10³/µL (e.g., 220 = 220,000/µL).
+        The LLM extracts 100000 from "≥100,000/µL" but the DB comparison needs 100.
+        """
+        THRESHOLD_FIXES = {
+            "platelets": {
+                "check": lambda t: t is not None and t >= 1000,
+                "fix": lambda t: t / 1000.0,
+                "unit": "×10³/µL",
+            },
+        }
+        
+        fixed_count = 0
+        for criterion in criteria:
+            fix_rule = THRESHOLD_FIXES.get(criterion.parameter)
+            if fix_rule and criterion.threshold is not None:
+                if fix_rule["check"](criterion.threshold):
+                    old_val = criterion.threshold
+                    criterion.threshold = fix_rule["fix"](criterion.threshold)
+                    criterion.unit = fix_rule["unit"]
+                    fixed_count += 1
+                    logger.info(
+                        "Fixed threshold unit mismatch",
+                        event="threshold_fixed",
+                        parameter=criterion.parameter,
+                        old_value=old_val,
+                        new_value=criterion.threshold,
+                    )
+        
+        if fixed_count > 0:
+            logger.info(
+                f"Post-processing fixed {fixed_count} thresholds",
+                event="threshold_fixes_applied",
+                fixed_count=fixed_count,
+            )
+        return criteria
+
+    def _fix_operators(self, criteria: list[CriterionCreate]) -> list[CriterionCreate]:
+        """Fix operators where the LLM inverted the logic for exclusion criteria."""
+        EXCLUSION_SHOULD_BE_GTE = {"ALT", "AST"}
+        
+        fixed_count = 0
+        for criterion in criteria:
+            if (criterion.category == "EXCLUSION" 
+                and criterion.parameter in EXCLUSION_SHOULD_BE_GTE
+                and criterion.operator == "LTE"
+                and criterion.threshold is not None):
+                criterion.operator = "GTE"
+                fixed_count += 1
+                logger.info(
+                    "Fixed exclusion operator LTE→GTE",
+                    event="operator_fixed",
+                    parameter=criterion.parameter,
+                )
+        
+        if fixed_count > 0:
+            logger.info(
+                f"Post-processing fixed {fixed_count} operators",
+                event="operator_fixes_applied",
+            )
+        return criteria
     # ── LLM Response Parsing ────────────────────────────────────────────
 
     def _parse_llm_response(self, response: str) -> list[dict[str, Any]]:

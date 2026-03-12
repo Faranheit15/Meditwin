@@ -3,4 +3,5 @@ CLAUDE.md
 .venv
 .env
 .env.*
+!backend/.env.example
 __pycache__/

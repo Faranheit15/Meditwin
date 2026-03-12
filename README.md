@@ -2,11 +2,118 @@
 
 Patient Digital Twin for Clinical Trial Eligibility Simulation
 
-MediTwin is a hackathon project for clinical trial coordinators to upload protocol PDFs, translate eligibility text into structured clinical rules, pre-screen candidate patients, and eventually run forward-looking digital twin simulations with interpretable reasoning traces. The current implementation provides the core application foundation: authenticated dashboard shell, typed frontend API layer, FastAPI backend with Clerk JWT verification, Supabase PostgreSQL connectivity, startup seeding, structured logging, and placeholder routes/pages for the protocol, patient, and simulation workflows.
+MediTwin is a hackathon project for clinical trial coordinators to upload protocol PDFs, translate eligibility text into structured clinical rules, pre-screen candidate patients, and run forward-looking digital twin simulations with interpretable reasoning traces. The current implementation includes the authenticated dashboard shell, typed frontend API layer, FastAPI backend with Clerk JWT verification, Supabase PostgreSQL connectivity, protocol extraction, deterministic screening and simulation, and persisted reasoning traces.
+
+## Production URLs
+
+- Frontend: `https://meditwin.vercel.app`
+- Backend API: `https://meditwin.up.railway.app/api/v1`
+- API Docs: `https://meditwin.up.railway.app/docs`
+
+## Demo credentials
+
+No shared demo account is stored in this repository. Use an existing Clerk account for the deployed workspace, or provision a dedicated demo user in Clerk before presenting.
+
+## Demo flow
+
+1. Open `https://meditwin.vercel.app` and sign in through Clerk.
+2. Go to `Protocols` and use seeded Protocol A when you need the fastest path:
+   `1a011f7a-0f8d-5232-a5a6-59bce7389f9c`
+3. If you want to demo extraction live, upload `backend/resources/protocol-documents/PROTOCOL A.pdf`, review the criteria, and confirm it.
+4. Click `Screen Patients` from the confirmed protocol detail page.
+5. The patients screen will now reuse cached `pre_screen_score` values from the database when they exist; if scores are missing, it falls back to a fresh pre-screen run.
+6. Use these demo patients for full simulations:
+   Margaret O'Brien: borderline-to-fail renal trajectory, roughly `60.0%` compatibility.
+   Robert Chen: strong pass case, roughly `94.5%` compatibility.
+   William Hartley: immediate renal fail case, roughly `43.6%` compatibility.
+7. Open `Simulation History` to review stored runs and jump back into any cached result.
+
+## Demo reliability safety net
+
+- Seeded protocol already in DB:
+  `1a011f7a-0f8d-5232-a5a6-59bce7389f9c` (`CONFIRMED`, `13` criteria)
+- Seeded patients already in DB:
+  `10`
+- Stored simulations already in DB:
+  `6`
+- Cached demo runs present for:
+  Margaret O'Brien
+  Robert Chen
+  William Hartley
+
+If Groq is unavailable during the demo, use the seeded confirmed protocol plus the stored simulations. The simulation detail pages are GET-only reads against persisted database state. The patients screening page now prefers cached `pre_screen_score` values from the database before attempting a new pre-screen POST.
+
+## Known limitations
+
+- Groq free-tier rate limits can interrupt live extraction or reasoning generation at roughly `30 req/min`.
+- All data in this project is synthetic hackathon data. No real patient data is included.
+- Criteria extraction is LLM-assisted and not perfect; expect roughly `85%` extraction accuracy before manual review and post-processing.
+- There is no document enrichment pipeline yet for patient uploads. That remains a stretch-goal gap.
+- A shared demo Clerk account is not managed in-repo; auth must be provisioned separately.
+
+## Architecture summary
+
+The core product insight is a hybrid architecture:
+
+- GenAI handles protocol-language understanding and coordinator-facing reasoning generation.
+- Deterministic computation handles trend fitting, projection, and pass/fail rule evaluation.
+- This split is materially more reliable for clinical-style eligibility checks than a pure-LLM approach because the numerical evaluation path stays inspectable and repeatable.
+
+## API summary
+
+| Method | Path | Purpose |
+|---|---|---|
+| `GET` | `/api/v1/health` | Service health, version, and DB connectivity |
+| `GET` | `/api/v1/auth/me` | Verify Clerk token and sync the local user |
+| `POST` | `/api/v1/auth/webhook` | Clerk webhook placeholder |
+| `GET` | `/api/v1/protocols` | List all protocols |
+| `POST` | `/api/v1/protocols/upload` | Upload a PDF and extract criteria |
+| `GET` | `/api/v1/protocols/{protocol_id}` | Get one protocol with criteria |
+| `GET` | `/api/v1/protocols/{protocol_id}/criteria` | List criteria for a protocol |
+| `PATCH` | `/api/v1/criteria/{criterion_id}` | Update one extracted criterion |
+| `POST` | `/api/v1/protocols/{protocol_id}/confirm` | Confirm a reviewed protocol |
+| `GET` | `/api/v1/patients` | List patients and latest labs |
+| `GET` | `/api/v1/patients/{patient_id}` | Get full patient profile |
+| `POST` | `/api/v1/patients/{patient_id}/documents` | Patient document upload placeholder |
+| `POST` | `/api/v1/patients/{patient_id}/confirm-enrichment` | Enrichment confirmation placeholder |
+| `POST` | `/api/v1/simulate/pre-screen` | Score the full patient cohort for one protocol |
+| `POST` | `/api/v1/simulate/full` | Run and persist a full simulation |
+| `GET` | `/api/v1/simulations` | List stored simulations |
+| `GET` | `/api/v1/simulations/{simulation_id}` | Get one simulation with evaluations and reasoning |
+
+## Local environment setup
+
+### Backend
+
+1. Copy `backend/.env.example` to `backend/.env`.
+2. Set `DATABASE_URL` or the `DB_*` variables for Supabase PostgreSQL.
+3. Set `CLERK_SECRET_KEY` and `CLERK_JWKS_URL`.
+4. Set `GROQ_API_KEY`.
+5. Set `CORS_ORIGINS=http://localhost:3000` for local work, plus the Vercel URL for shared environments.
+6. Run:
+
+```powershell
+cd backend
+$env:UV_CACHE_DIR=(Resolve-Path '.uv-cache').Path
+uv run fastapi dev app/main.py
+```
+
+### Frontend
+
+1. Copy `frontend/.env.local.example` to `frontend/.env.local`.
+2. Set `NEXT_PUBLIC_API_URL`.
+3. Set `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` and `CLERK_SECRET_KEY`.
+4. Run:
+
+```powershell
+cd frontend
+bun install
+bun dev
+```
 
 ## Current status
 
-This repository is in the platform-foundation stage.
+This repository is in a demo-ready hackathon stage.
 
 What is implemented now:
 - Next.js frontend with Clerk auth integration and protected dashboard routes
@@ -666,7 +773,7 @@ flowchart TD
 
 ## Known implementation notes
 
-- The frontend dashboard pages are intentionally placeholder-heavy right now
+- Patient document ingestion and enrichment workflows are still placeholder-only
 - The backend connects successfully to Supabase and creates / verifies tables on startup
 - The authenticated frontend flow depends on Clerk plus backend `/auth/me` sync
 - Next.js route protection uses `src/proxy.ts`, not `middleware.ts`, because the repo uses `src/`

@@ -6,8 +6,6 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import {
   ActivitySquare,
-  ChevronLeft,
-  ChevronRight,
   ClipboardPlus,
   LogOut,
   Settings2,
@@ -66,9 +64,6 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
           <p className="text-xs uppercase tracking-[0.28em] text-cyan-300/70">MediTwin</p>
           <p className="text-sm text-muted-foreground">Clinical eligibility command center</p>
         </div>
-        <Button variant="ghost" size="icon" onClick={onToggle} aria-label="Toggle sidebar">
-          {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
-        </Button>
       </div>
 
       <nav className="mt-8 flex flex-1 flex-col gap-2">

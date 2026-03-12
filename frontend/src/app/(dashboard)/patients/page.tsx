@@ -79,6 +79,22 @@ function buildRows(results: PreScreenPatientResult[], patients: PatientProfile[]
   return rows.sort((left, right) => (right.summary.preScreenScore ?? -1) - (left.summary.preScreenScore ?? -1));
 }
 
+function buildCachedRows(patients: PatientProfile[]): PatientRow[] {
+  return buildRows(
+    patients.map((patient) => ({
+      id: patient.id,
+      name: patient.name,
+      age: patient.age,
+      sex: patient.sex,
+      primaryDiagnosis: patient.primaryDiagnosis,
+      preScreenScore: patient.preScreenScore,
+      riskLevel: patient.riskLevel,
+      failReasons: patient.failReasons ?? [],
+    })),
+    patients,
+  );
+}
+
 function latestLab(patient: PatientProfile, parameter: string) {
   return patient.labResults.find((lab) => lab.parameter.toLowerCase() === parameter.toLowerCase()) ?? null;
 }
@@ -391,11 +407,17 @@ function ProtocolScreeningMode({ protocolId }: { protocolId: string }) {
     setLoading(true);
     setError(null);
     try {
-      const [preScreenResponse, patientResponse] = await Promise.all([
-        simulationAPI.preScreen(activeProtocolId),
-        patientAPI.list(activeProtocolId),
-      ]);
-      setRows(buildRows(preScreenResponse.data?.results ?? [], patientResponse.data ?? []));
+      const patientResponse = await patientAPI.list(activeProtocolId);
+      const patients = patientResponse.data ?? [];
+      const hasCachedScores = patients.length > 0 && patients.every((patient) => patient.preScreenScore !== null);
+
+      if (hasCachedScores) {
+        setRows(buildCachedRows(patients));
+        return;
+      }
+
+      const preScreenResponse = await simulationAPI.preScreen(activeProtocolId);
+      setRows(buildRows(preScreenResponse.data?.results ?? [], patients));
     } catch (loadError) {
       const message = loadError instanceof Error ? loadError.message : "Failed to screen patients.";
       setError(message);
