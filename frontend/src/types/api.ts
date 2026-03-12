@@ -4,6 +4,7 @@ import type {
   PreScreenResponse,
   Protocol,
   ProtocolWithCriteria,
+  SimulationListItem,
   SimulationResponse,
   User,
 } from "@/types/models";
@@ -64,6 +65,7 @@ export interface PatientAPI {
 }
 
 export interface SimulationAPI {
+  list: (protocolId?: string, patientId?: string) => Promise<APIResponse<SimulationListItem[]>>;
   preScreen: (protocolId: string) => Promise<APIResponse<PreScreenResponse>>;
   runFull: (protocolId: string, patientId: string) => Promise<APIResponse<SimulationResponse>>;
   getResult: (simulationId: string) => Promise<APIResponse<SimulationResponse>>;

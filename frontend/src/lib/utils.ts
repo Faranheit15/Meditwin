@@ -14,6 +14,42 @@ export function formatDate(value: string | number | Date): string {
   }).format(date);
 }
 
+export function formatRelativeTime(value: string | number | Date): string {
+  const date = value instanceof Date ? value : new Date(value);
+  const diffMs = date.getTime() - Date.now();
+  const absMs = Math.abs(diffMs);
+  const minute = 60 * 1000;
+  const hour = 60 * minute;
+  const day = 24 * hour;
+
+  if (absMs < minute) {
+    return "Just now";
+  }
+
+  if (absMs < hour) {
+    return new Intl.RelativeTimeFormat("en", { numeric: "auto" }).format(
+      Math.round(diffMs / minute),
+      "minute",
+    );
+  }
+
+  if (absMs < day) {
+    return new Intl.RelativeTimeFormat("en", { numeric: "auto" }).format(
+      Math.round(diffMs / hour),
+      "hour",
+    );
+  }
+
+  if (absMs < 7 * day) {
+    return new Intl.RelativeTimeFormat("en", { numeric: "auto" }).format(
+      Math.round(diffMs / day),
+      "day",
+    );
+  }
+
+  return formatDate(date);
+}
+
 export function formatRiskLabel(value: string | null): string {
   if (!value) {
     return "Pending";

@@ -107,6 +107,22 @@ export interface SimulationResponse {
   createdAt: string;
 }
 
+export interface SimulationListItem {
+  id: string;
+  protocolId: string;
+  protocolName: string;
+  patientId: string;
+  patientName: string;
+  patientAge: number;
+  patientSex: "MALE" | "FEMALE";
+  overallRisk: "HIGH" | "MEDIUM" | "LOW";
+  riskScore: number;
+  compatibilityScore: number;
+  evaluationCount: number;
+  flaggedCount: number;
+  createdAt: string;
+}
+
 export interface EvaluationResponse {
   id: string;
   criterionId: string;

@@ -3,8 +3,8 @@ from __future__ import annotations
 from time import perf_counter
 from uuid import UUID
 
-from fastapi import APIRouter, Depends
-from sqlalchemy import select
+from fastapi import APIRouter, Depends, Query
+from sqlalchemy import and_, case, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -26,6 +26,7 @@ from app.schemas.simulation import (
     PreScreenRequest,
     PreScreenResponse,
     ReasoningTraceResponse,
+    SimulationListItem,
     SimulationResponse,
 )
 from app.services.llm import GroqLLMService
@@ -33,6 +34,100 @@ from app.services.reasoner import ReasoningService
 
 router = APIRouter()
 logger = get_logger(__name__)
+
+
+@router.get("/simulations", response_model=APIResponse[list[SimulationListItem]])
+async def list_simulations(
+    protocol_id: str | None = Query(None),
+    patient_id: str | None = Query(None),
+    limit: int = Query(50, ge=1, le=200),
+    db: AsyncSession = Depends(get_db),
+    _current_user: User = Depends(get_current_user),
+) -> APIResponse[list[SimulationListItem]]:
+    started = perf_counter()
+    query = (
+        select(
+            Simulation.id.label("id"),
+            Simulation.protocol_id.label("protocol_id"),
+            Protocol.name.label("protocol_name"),
+            Simulation.patient_id.label("patient_id"),
+            Patient.name.label("patient_name"),
+            Patient.age.label("patient_age"),
+            Patient.sex.label("patient_sex"),
+            Simulation.overall_risk.label("overall_risk"),
+            Simulation.risk_score.label("risk_score"),
+            Simulation.compatibility_score.label("compatibility_score"),
+            func.count(Evaluation.id).label("evaluation_count"),
+            func.sum(
+                case(
+                    (
+                        Evaluation.status.in_(
+                            [EvaluationStatus.BORDERLINE, EvaluationStatus.FAIL]
+                        ),
+                        1,
+                    ),
+                    else_=0,
+                )
+            ).label("flagged_count"),
+            Simulation.created_at.label("created_at"),
+        )
+        .join(Protocol, Protocol.id == Simulation.protocol_id)
+        .join(Patient, Patient.id == Simulation.patient_id)
+        .outerjoin(Evaluation, Evaluation.simulation_id == Simulation.id)
+        .group_by(
+            Simulation.id,
+            Simulation.protocol_id,
+            Protocol.name,
+            Simulation.patient_id,
+            Patient.name,
+            Patient.age,
+            Patient.sex,
+            Simulation.overall_risk,
+            Simulation.risk_score,
+            Simulation.compatibility_score,
+            Simulation.created_at,
+        )
+        .order_by(Simulation.created_at.desc())
+        .limit(limit)
+    )
+
+    filters = []
+    if protocol_id:
+        filters.append(Simulation.protocol_id == UUID(protocol_id))
+    if patient_id:
+        filters.append(Simulation.patient_id == UUID(patient_id))
+    if filters:
+        query = query.where(and_(*filters))
+
+    result = await db.execute(query)
+    rows = result.mappings().all()
+    payload = [
+        SimulationListItem(
+            id=str(row["id"]),
+            protocol_id=str(row["protocol_id"]),
+            protocol_name=row["protocol_name"],
+            patient_id=str(row["patient_id"]),
+            patient_name=row["patient_name"],
+            patient_age=row["patient_age"],
+            patient_sex=_enum_value(row["patient_sex"]) or "",
+            overall_risk=_enum_value(row["overall_risk"]) or "",
+            risk_score=row["risk_score"],
+            compatibility_score=row["compatibility_score"],
+            evaluation_count=row["evaluation_count"] or 0,
+            flagged_count=row["flagged_count"] or 0,
+            created_at=row["created_at"],
+        )
+        for row in rows
+    ]
+    logger.info(
+        "Simulations listed",
+        event="simulation_list",
+        protocol_id=protocol_id or "none",
+        patient_id=patient_id or "none",
+        simulation_count=len(payload),
+        duration_ms=round((perf_counter() - started) * 1000, 2),
+    )
+    return APIResponse(data=payload, message="Simulations retrieved.")
 
 
 @router.post("/simulate/pre-screen", response_model=APIResponse[PreScreenResponse])

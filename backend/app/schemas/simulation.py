@@ -83,3 +83,21 @@ class SimulationResponse(CamelModel):
     created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class SimulationListItem(CamelModel):
+    id: str
+    protocol_id: str
+    protocol_name: str
+    patient_id: str
+    patient_name: str
+    patient_age: int
+    patient_sex: str
+    overall_risk: str
+    risk_score: float
+    compatibility_score: float
+    evaluation_count: int
+    flagged_count: int
+    created_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)

@@ -15,6 +15,7 @@ import type {
   PreScreenResponse,
   Protocol,
   ProtocolWithCriteria,
+  SimulationListItem,
   SimulationResponse,
   User,
 } from "@/types/models";
@@ -156,6 +157,22 @@ export const patientAPI: PatientAPI = {
 } satisfies PatientAPI;
 
 export const simulationAPI: SimulationAPI = {
+  async list(protocolId?: string, patientId?: string): Promise<APIResponse<SimulationListItem[]>> {
+    const params: Record<string, string> = {};
+    if (protocolId) {
+      params.protocol_id = protocolId;
+    }
+    if (patientId) {
+      params.patient_id = patientId;
+    }
+
+    return apiRequest<APIResponse<SimulationListItem[]>>({
+      method: "GET",
+      url: "/simulations",
+      params: Object.keys(params).length > 0 ? params : undefined,
+    });
+  },
+
   async preScreen(protocolId: string): Promise<APIResponse<PreScreenResponse>> {
     return apiRequest<APIResponse<PreScreenResponse>>({
       method: "POST",

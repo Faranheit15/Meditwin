@@ -28,7 +28,7 @@ interface SidebarProps {
 const navigationItems = [
   { href: ROUTES.PROTOCOLS, label: "Protocols", icon: ClipboardPlus },
   { href: ROUTES.PATIENTS, label: "Patients", icon: Users2 },
-  { href: `${ROUTES.SIMULATION}/latest`, label: "Simulation Results", icon: ActivitySquare },
+  { href: ROUTES.SIMULATION, label: "Simulation History", icon: ActivitySquare },
   { href: ROUTES.SETTINGS, label: "Settings", icon: Settings2 },
 ] as const;
 

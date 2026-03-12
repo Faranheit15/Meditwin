@@ -194,6 +194,7 @@ meditwin/
 - Protected routes:
   - `/protocols`
   - `/patients`
+  - `/simulation`
   - `/simulation/[id]`
   - `/settings`
 - After sign-in, the frontend redirects to `/protocols`
@@ -207,9 +208,10 @@ meditwin/
 | `/sign-in` | Clerk sign-in screen | Implemented |
 | `/sign-up` | Clerk sign-up screen | Implemented |
 | `/protocols` | Protocol upload and criteria review workflow | Implemented |
-| `/patients` | Patient pre-screen ranking table with cohort actions | Implemented |
+| `/patients` | Patient registry plus protocol-specific pre-screen ranking workflow | Implemented |
+| `/simulation` | Simulation history listing with stats and result navigation | Implemented |
 | `/simulation/[id]` | Simulation results timeline and reasoning view | Implemented |
-| `/settings` | Clerk profile / settings placeholder | Implemented placeholder |
+| `/settings` | Workspace overview dashboard, activity feed, and system info | Implemented |
 
 ### Frontend data layer
 - `src/lib/axios.ts`
@@ -267,6 +269,7 @@ All backend routes are mounted under:
 | `POST` | `/api/v1/patients/{patient_id}/confirm-enrichment` | Enrichment confirmation placeholder | Yes | Placeholder `501` |
 | `POST` | `/api/v1/simulate/pre-screen` | Bulk pre-screen all patients against one confirmed protocol | Yes | Implemented |
 | `POST` | `/api/v1/simulate/full` | Run and persist a full patient-protocol simulation | Yes | Implemented |
+| `GET` | `/api/v1/simulations` | List stored simulations with joined patient/protocol summary fields | Yes | Implemented |
 | `GET` | `/api/v1/simulations/{simulation_id}` | Fetch a stored simulation with evaluations and traces | Yes | Implemented |
 
 ### Domain models currently defined
@@ -491,6 +494,55 @@ NEXT_PUBLIC_API_URL=http://localhost:8001/api/v1
 - Frontend: `http://localhost:3000`
 - Backend docs: `http://localhost:8000/docs`
 - Backend health: `http://localhost:8000/api/v1/health`
+
+## Docker Compose local development
+
+The repository now includes a root-level `compose.yaml` for running the frontend and backend together in Docker with live-reload-friendly settings and streamed container logs.
+
+### Files added for Docker-based development
+
+- `compose.yaml` - local orchestration for frontend and backend
+- `backend/Dockerfile.dev` - backend development image for FastAPI auto-reload
+- `frontend/Dockerfile.dev` - frontend development image for Next.js + Bun
+- `.env.compose.example` - example environment values for Docker Compose
+
+### Setup
+
+1. Copy `.env.compose.example` to `.env` in the project root.
+2. Fill in the database, Clerk, and Groq values you use locally.
+3. Start the stack:
+
+```powershell
+docker compose up --build
+```
+
+### URLs
+
+- Frontend: `http://localhost:3000`
+- Backend API: `http://localhost:8000/api/v1`
+- Backend docs: `http://localhost:8000/docs`
+
+### Logs
+
+Both services log directly to the Compose output so you can debug from a single terminal.
+
+```powershell
+docker compose logs -f
+docker compose logs -f meditwin-backend
+docker compose logs -f meditwin-frontend
+```
+
+### Stop the stack
+
+```powershell
+docker compose down
+```
+
+### Notes
+
+- The setup uses bind mounts so code edits on Windows, Linux, and macOS are reflected inside the containers.
+- File watching is configured for Docker-hosted development, including polling-based reload behavior that works reliably across platforms.
+- Frontend dependencies are stored in named Docker volumes so host `node_modules` differences do not leak into the container.
 
 ## Local run checklist
 
@@ -924,3 +976,21 @@ The frontend now includes reusable data export controls across tables and visual
 - Table and visualization sections expose a shared download menu with CSV and JSON export
 - PNG export is available for sections rendered in the browser, including the protocol list table, criteria review table, patient screening table, simulation timeline, reasoning panel, and parameter charts
 - Exported files use page-specific filenames so coordinators can keep artifacts organized during review and demo workflows
+
+## Day 7 dashboard workflow refinement
+
+The coordinator-facing placeholder pages now expose real workspace value instead of dead ends.
+
+### New and updated dashboard pages
+
+- `frontend/src/app/(dashboard)/simulation/page.tsx` now renders a Simulation History view backed by `GET /api/v1/simulations`, including summary cards, responsive history tables, and direct navigation into stored results
+- `frontend/src/app/(dashboard)/patients/page.tsx` now supports two modes: protocol-driven pre-screening when `protocol_id` is present and a full patient registry with search, expandable clinical details, and per-patient simulation actions when it is absent
+- `frontend/src/app/(dashboard)/settings/page.tsx` now acts as a workspace overview dashboard with activity summary cards, recent protocol/simulation activity, quick actions, and condensed system information
+
+### New backend support
+
+- `GET /api/v1/simulations` now returns simulation list rows with patient and protocol names, compatibility/risk metrics, evaluation counts, flagged counts, and creation timestamps ordered newest first
+
+### Navigation update
+
+- Sidebar and mobile navigation now point to `/simulation` instead of the old `/simulation/latest` route, and `/simulation/latest` redirects to the history index for backward compatibility
