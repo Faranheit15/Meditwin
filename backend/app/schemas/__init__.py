@@ -13,6 +13,7 @@ from app.schemas.simulation import (
     PreScreenPatientResult,
     PreScreenRequest,
     PreScreenResponse,
+    ReasoningTraceCreate,
     SimulationResponse,
 )
 from app.schemas.user import UserRead
@@ -33,6 +34,7 @@ __all__ = [
     "PreScreenResponse",
     "ProtocolResponse",
     "ProtocolWithCriteriaResponse",
+    "ReasoningTraceCreate",
     "SimulationResponse",
     "UserRead",
 ]

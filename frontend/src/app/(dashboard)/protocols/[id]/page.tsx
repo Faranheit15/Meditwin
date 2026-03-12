@@ -1,9 +1,10 @@
-ï»¿"use client";
+"use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { AlertTriangle, PencilLine, RefreshCcw } from "lucide-react";
 
+import { ExportMenu } from "@/components/common/ExportMenu";
 import { CriterionEditorDialog } from "@/components/protocols/CriterionEditorDialog";
 import { ProtocolStatusBadge } from "@/components/protocols/ProtocolStatusBadge";
 import { Button } from "@/components/ui/button";
@@ -43,6 +44,7 @@ export default function ProtocolDetailPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
   const protocolId = params.id;
+  const criteriaSectionRef = useRef<HTMLElement | null>(null);
   const [protocol, setProtocol] = useState<ProtocolWithCriteria | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -157,6 +159,24 @@ export default function ProtocolDetailPage() {
     };
   }, [protocol]);
 
+  const criteriaExportRows = useMemo(
+    () =>
+      protocol?.criteria.map((criterion) => ({
+        id: criterion.id,
+        category: criterion.category,
+        originalText: criterion.originalText,
+        parameter: criterion.parameter,
+        operator: criterion.operator,
+        threshold: criterion.threshold,
+        unit: criterion.unit,
+        timeWindow: criterion.timeWindow,
+        evalSchedule: criterion.evalSchedule.join("; "),
+        requiresReview: criterion.requiresReview,
+        confidence: criterion.confidence,
+      })) ?? [],
+    [protocol],
+  );
+
   if (loading) {
     return (
       <div className="rounded-[2rem] border border-border/70 bg-card/50 p-8 text-sm text-muted-foreground">
@@ -190,12 +210,20 @@ export default function ProtocolDetailPage() {
               <ProtocolStatusBadge status={protocol.status} />
             </div>
             <p className="text-sm text-muted-foreground">
-              Version {protocol.version} â€¢ {protocol.criteriaCount} criteria â€¢ uploaded {formatDate(protocol.createdAt)}
+              Version {protocol.version} • {protocol.criteriaCount} criteria • uploaded {formatDate(protocol.createdAt)}
             </p>
             {error ? <p className="text-sm text-rose-300">{error}</p> : null}
           </div>
 
           <div className="flex flex-col gap-3 sm:flex-row">
+            {protocol.criteria.length > 0 ? (
+              <ExportMenu
+                fileBaseName={`protocol-${protocol.id}-criteria`}
+                csvRows={criteriaExportRows}
+                jsonData={protocol.criteria}
+                imageTargetRef={criteriaSectionRef}
+              />
+            ) : null}
             {protocol.status === "EXTRACTED" ? (
               <Button onClick={() => setShowConfirmDialog(true)} disabled={confirming}>
                 {confirming ? "Confirming..." : "Confirm Criteria"}
@@ -214,7 +242,7 @@ export default function ProtocolDetailPage() {
         </div>
       </section>
 
-      <section className="space-y-6">
+      <section ref={criteriaSectionRef} className="space-y-6">
         {(["inclusion", "exclusion"] as const).map((groupKey) => {
           const title = groupKey === "inclusion" ? "Inclusion Criteria" : "Exclusion Criteria";
           const criteria = groupedCriteria[groupKey];
@@ -368,4 +396,3 @@ export default function ProtocolDetailPage() {
     </div>
   );
 }
-

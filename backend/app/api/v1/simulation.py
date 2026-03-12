@@ -28,6 +28,8 @@ from app.schemas.simulation import (
     ReasoningTraceResponse,
     SimulationResponse,
 )
+from app.services.llm import GroqLLMService
+from app.services.reasoner import ReasoningService
 
 router = APIRouter()
 logger = get_logger(__name__)
@@ -145,6 +147,46 @@ async def run_full_simulation(
 
     await db.commit()
     response_payload = await _load_simulation_response(db, simulation.id)
+    try:
+        reasoning_started = perf_counter()
+        traces = await ReasoningService(GroqLLMService.get_instance()).generate_traces(
+            patient_data={
+                **_patient_data_dict(patient),
+                "medications": _medication_dicts(patient),
+                "conditions": _condition_dicts(patient),
+            },
+            evaluations=[evaluation.model_dump() for evaluation in response_payload.evaluations],
+            twin_trends=_twin_trends_dict(twin),
+        )
+        if traces:
+            for trace in traces:
+                db.add(
+                    ReasoningTrace(
+                        evaluation_id=UUID(trace["evaluation_id"]),
+                        explanation=trace["explanation"],
+                        risk_factors=trace["risk_factors"],
+                        suggestion=trace.get("suggestion"),
+                        confidence_note=trace["confidence_note"],
+                    )
+                )
+            await db.commit()
+            response_payload = await _load_simulation_response(db, simulation.id)
+
+        logger.info(
+            "Reasoning trace generation completed",
+            event="reasoning_generate_complete",
+            simulation_id=simulation.id,
+            trace_count=len(traces),
+            duration_ms=round((perf_counter() - reasoning_started) * 1000, 2),
+        )
+    except Exception as exc:
+        logger.exception(
+            "Reasoning trace generation failed",
+            event="reasoning_generate_failed",
+            simulation_id=simulation.id,
+            error=str(exc),
+        )
+
     logger.info(
         "Full simulation completed",
         event="simulation_full",
@@ -257,6 +299,7 @@ def _evaluation_response(evaluation: Evaluation) -> EvaluationResponse:
     reasoning_payload = (
         ReasoningTraceResponse(
             id=str(reasoning.id),
+            evaluation_id=str(reasoning.evaluation_id),
             explanation=reasoning.explanation,
             risk_factors=reasoning.risk_factors,
             suggestion=reasoning.suggestion,
@@ -345,3 +388,15 @@ def _enum_value(value: object) -> str | None:
     if value is None:
         return None
     return str(getattr(value, "value", value))
+
+
+def _twin_trends_dict(twin: DigitalTwin) -> dict[str, dict]:
+    return {
+        parameter: {
+            "current_value": trend.current_value,
+            "slope_per_week": trend.slope_per_week,
+            "data_points": trend.data_points,
+            "r_squared": trend.r_squared,
+        }
+        for parameter, trend in twin.trends.items()
+    }

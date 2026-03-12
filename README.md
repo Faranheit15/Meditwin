@@ -18,13 +18,12 @@ What is implemented now:
 - Typed frontend API client with Axios interceptors
 - Storage abstraction via `UserSessionManager` and typed hooks
 - Structured backend logging, exception handling, CORS, request IDs, and request timing
-- Placeholder dashboard pages and placeholder backend domain endpoints
+- Protocol upload, criteria review, confirmation, pre-screen, and simulation result workflows
+- Deterministic digital twin, simulation runner, and pre-screen engines
+- LLM-backed reasoning trace generation for borderline and failing evaluations
 
 What is still placeholder / not implemented yet:
-- Protocol PDF upload and extraction pipeline
-- Criteria editing persistence
 - Patient CRUD and document ingestion workflows
-- Automated reasoning trace generation
 - Clerk webhook processing
 - Production-grade file storage, audit history, and monitoring
 
@@ -207,9 +206,9 @@ meditwin/
 | `/` | Landing page, redirects authenticated users to dashboard | Implemented |
 | `/sign-in` | Clerk sign-in screen | Implemented |
 | `/sign-up` | Clerk sign-up screen | Implemented |
-| `/protocols` | Protocol upload and criteria review placeholder | Placeholder UI |
-| `/patients` | Patient screening placeholder table | Placeholder UI |
-| `/simulation/[id]` | Simulation results placeholder | Placeholder UI |
+| `/protocols` | Protocol upload and criteria review workflow | Implemented |
+| `/patients` | Patient pre-screen ranking table with cohort actions | Implemented |
+| `/simulation/[id]` | Simulation results timeline and reasoning view | Implemented |
 | `/settings` | Clerk profile / settings placeholder | Implemented placeholder |
 
 ### Frontend data layer
@@ -841,3 +840,87 @@ bun dev
 - William Hartley and Luis Gutierrez should surface immediate fail reasons during pre-screen
 - Margaret O'Brien full simulation should show eGFR moving from pass into borderline and then fail around weeks 12-16
 - William Hartley full simulation should fail eGFR at week 0
+
+## Day 4 reasoning and results page implementation
+
+The full simulation flow now includes LLM-generated reasoning traces and the simulation results page is fully wired.
+
+### New backend modules
+
+- `backend/app/services/reasoner.py` - Batches BORDERLINE and FAIL evaluations into one reasoning-generation call and fills any missing traces with deterministic fallbacks
+- `backend/app/core/prompts.py` - Includes reasoning trace system and user prompts used by the reasoner
+
+### Updated API behavior
+
+- `POST /api/v1/simulate/full` now persists the simulation first, then generates reasoning traces and stores them in `reasoning_traces`
+- `GET /api/v1/simulations/{id}` now returns each evaluation with a nested `reasoning` object when a trace exists
+- Reasoning generation is non-blocking relative to simulation persistence: if the LLM call fails, the simulation and evaluations still remain saved
+
+### Frontend page completed
+
+- `frontend/src/app/(dashboard)/simulation/[id]/page.tsx` now loads the simulation, patient, and protocol context; renders the summary header, timeline grid, coordinator-facing reasoning cards, and responsive mobile week cards
+- The patients page simulation action now shows the longer-running status text while reasoning traces are generated
+- Simulation API calls now use a 90-second timeout for full runs and result retrieval
+- The simulation results page now includes Recharts-based parameter projection cards for multi-week numeric parameters such as eGFR and HbA1c
+- Protocol, patient, timeline, reasoning, and chart surfaces now expose production-style export menus for CSV, JSON, and PNG downloads where image export is supported
+
+### Architecture notes
+
+- Reasoning generation is the only LLM call in the simulation pipeline
+- The Digital Twin, Simulation Runner, and Pre-Screener remain pure computation
+- Deterministic fallback traces are used when the LLM omits a flagged evaluation from its batch response
+- Reasoning traces are stored in `reasoning_traces` and linked to `evaluations.evaluation_id`
+
+### LLM usage summary
+
+- Criteria extraction: typically 1-2 Groq calls per protocol upload, depending on prompt retry needs
+- Reasoning traces: 1 Groq call per simulation run, batching all flagged evaluations together
+- Pre-screen and deterministic simulation math: 0 LLM calls
+
+### Day 4 validation commands
+
+Backend:
+
+```powershell
+cd backend
+$env:UV_CACHE_DIR=(Resolve-Path '.uv-cache').Path
+uv run python -m compileall app
+uv run python -c "from app.main import app; print(app.title)"
+uv run fastapi dev app/main.py
+```
+
+Frontend:
+
+```powershell
+cd frontend
+bun run lint
+bunx tsc --noEmit
+bun dev
+```
+
+### Expected reasoning behavior
+
+- Margaret O'Brien should surface coordinator-readable eGFR reasoning that references the decline from 48.0 toward the mid-40s and the 45 threshold breach window
+- Robert Chen should have few traces because most evaluations remain PASS
+- William Hartley should produce immediate week-0 fail reasoning for the breached eGFR criterion
+
+## Day 5 visualization refinement
+
+The simulation results page now includes compact parameter trend charts using Recharts.
+
+### Trend chart behavior
+
+- Multi-week numeric parameters are rendered as small line charts on the simulation results page
+- Projected values are shown as a cyan line, with dot colors reflecting PASS, BORDERLINE, and FAIL states
+- Protocol thresholds are shown as dashed red reference lines so the crossing point is visually obvious
+- Chart cards are responsive and stack into a single column on smaller screens
+
+## Day 6 export controls
+
+The frontend now includes reusable data export controls across tables and visualizations.
+
+### Export behavior
+
+- Table and visualization sections expose a shared download menu with CSV and JSON export
+- PNG export is available for sections rendered in the browser, including the protocol list table, criteria review table, patient screening table, simulation timeline, reasoning panel, and parameter charts
+- Exported files use page-specific filenames so coordinators can keep artifacts organized during review and demo workflows

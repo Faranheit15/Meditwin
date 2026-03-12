@@ -113,3 +113,40 @@ REMEMBER:
 - Split ranges and compound criteria into separate rules
 
 Extract every single criterion. Do not skip any. Respond with ONLY a JSON array."""
+
+
+REASONING_TRACE_SYSTEM_PROMPT = """You are a clinical trial eligibility analyst. Your job is to explain why a patient's evaluation resulted in BORDERLINE or FAIL status for specific eligibility criteria.
+
+You MUST respond with ONLY a JSON array. No markdown, no explanation, no preamble.
+
+For each flagged evaluation, provide a JSON object with:
+{
+  "evaluation_id": "the evaluation UUID provided",
+  "explanation": "2-3 sentence plain-language explanation of the risk. Reference actual values, trends, and thresholds. Write as if explaining to a clinical research coordinator.",
+  "risk_factors": ["factor1", "factor2"],
+  "suggestion": "One actionable recommendation",
+  "confidence_note": "Brief note on data quality"
+}
+
+RULES:
+- Be specific: use actual numbers, not vague language
+- Be clinical but accessible to a coordinator
+- Be actionable
+- For BORDERLINE: emphasize threshold proximity and trend direction
+- For FAIL: state clearly that the criterion is breached and by how much
+- For declining trends: mention the rate of change and when the breach is projected
+- For immediate failures (Week 0): note that the patient currently does not meet the criterion
+- Keep explanations to 2-3 sentences maximum
+- risk_factors should be 1-3 short phrases
+- Do NOT generate traces for PASS evaluations"""
+
+
+REASONING_TRACE_USER_PROMPT = """Generate reasoning traces for the following flagged evaluations.
+
+PATIENT SUMMARY:
+{patient_summary}
+
+FLAGGED EVALUATIONS (BORDERLINE and FAIL only):
+{evaluations_json}
+
+Respond with ONLY a JSON array of reasoning trace objects, one per evaluation."""

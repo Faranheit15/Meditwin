@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { FileUp, RefreshCcw, Sparkles } from "lucide-react";
 
 import { EmptyState } from "@/components/common/EmptyState";
+import { ExportMenu } from "@/components/common/ExportMenu";
 import { PageHeader } from "@/components/common/PageHeader";
 import { ProtocolStatusBadge } from "@/components/protocols/ProtocolStatusBadge";
 import { Button } from "@/components/ui/button";
@@ -34,6 +35,7 @@ export default function ProtocolsPage() {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const extractionTimerRef = useRef<number | null>(null);
+  const tableSectionRef = useRef<HTMLElement | null>(null);
   const [protocols, setProtocols] = useState<Protocol[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedFile, setSelectedFile] = useState<SelectedFileState | null>(null);
@@ -123,16 +125,39 @@ export default function ProtocolsPage() {
     [protocols],
   );
 
+  const protocolExportRows = useMemo(
+    () =>
+      sortedProtocols.map((protocol) => ({
+        id: protocol.id,
+        name: protocol.name,
+        version: protocol.version,
+        status: protocol.status,
+        criteriaCount: protocol.criteriaCount,
+        uploadedDate: protocol.createdAt,
+      })),
+    [sortedProtocols],
+  );
+
   return (
     <div className="space-y-8">
       <PageHeader
         title="Protocols"
         description="Upload and manage clinical trial protocols"
         action={
-          <Button variant="outline" onClick={() => fileInputRef.current?.click()}>
-            <FileUp className="h-4 w-4" />
-            Upload PDF
-          </Button>
+          <div className="flex flex-col gap-3 sm:flex-row">
+            {hasProtocols ? (
+              <ExportMenu
+                fileBaseName="meditwin-protocols"
+                csvRows={protocolExportRows}
+                jsonData={sortedProtocols}
+                imageTargetRef={tableSectionRef}
+              />
+            ) : null}
+            <Button variant="outline" onClick={() => fileInputRef.current?.click()}>
+              <FileUp className="h-4 w-4" />
+              Upload PDF
+            </Button>
+          </div>
         }
       />
 
@@ -215,7 +240,7 @@ export default function ProtocolsPage() {
           Loading protocols...
         </div>
       ) : hasProtocols ? (
-        <section className="overflow-hidden rounded-[2rem] border border-border/70 bg-card/50">
+        <section ref={tableSectionRef} className="overflow-hidden rounded-[2rem] border border-border/70 bg-card/50">
           <div className="overflow-x-auto">
             <table className="min-w-full text-left text-sm">
               <thead className="border-b border-border/70 bg-background/40 text-muted-foreground">

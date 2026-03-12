@@ -25,16 +25,18 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
   return (
     <AuthGuard>
-      <div className="min-h-screen lg:flex">
+      <div className="h-screen overflow-hidden bg-background lg:flex">
         <Sidebar collapsed={collapsed} onToggle={() => setCollapsed((value) => !value)} />
         <MobileNav open={mobileOpen} onClose={() => setMobileOpen(false)} />
-        <div className="flex min-h-screen min-w-0 flex-1 flex-col">
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col">
           <Header
             collapsed={collapsed}
             onOpenMobileNav={() => setMobileOpen(true)}
             onToggleSidebar={() => setCollapsed((value) => !value)}
           />
-          <main className="flex-1 px-4 py-6 md:px-6 lg:px-8">{children}</main>
+          <main className="min-h-0 flex-1 overflow-y-auto px-4 py-6 md:px-6 lg:px-8">
+            <div className="mx-auto w-full max-w-[1600px]">{children}</div>
+          </main>
         </div>
       </div>
     </AuthGuard>

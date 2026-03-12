@@ -57,7 +57,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
   return (
     <aside
       className={cn(
-        "hidden h-screen flex-col border-r border-border/60 bg-sidebar/90 px-3 py-4 backdrop-blur lg:flex",
+        "hidden h-screen shrink-0 flex-col border-r border-border/60 bg-sidebar/95 px-3 py-4 backdrop-blur lg:flex",
         collapsed ? "w-24" : "w-80",
       )}
     >

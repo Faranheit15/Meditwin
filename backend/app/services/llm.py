@@ -31,21 +31,34 @@ class GroqLLMService:
             cls._instance = cls()
         return cls._instance
 
-    async def chat(self, system_prompt: str, user_prompt: str, temperature: float = 0.1) -> str:
+    async def chat(
+        self,
+        system_prompt: str,
+        user_prompt: str,
+        temperature: float = 0.1,
+        *,
+        max_tokens: int = 4096,
+        response_format: dict[str, str] | None = {"type": "json_object"},
+    ) -> str:
         """Send a chat completion request with retries and timing logs."""
         for attempt in range(1, 4):
             started_at = time.perf_counter()
             try:
-                response = await asyncio.to_thread(
-                    self.client.chat.completions.create,
-                    model=self.model,
-                    temperature=temperature,
-                    max_tokens=4096,
-                    response_format={"type": "json_object"},
-                    messages=[
+                request_kwargs = {
+                    "model": self.model,
+                    "temperature": temperature,
+                    "max_tokens": max_tokens,
+                    "messages": [
                         {"role": "system", "content": system_prompt},
                         {"role": "user", "content": user_prompt},
                     ],
+                }
+                if response_format is not None:
+                    request_kwargs["response_format"] = response_format
+
+                response = await asyncio.to_thread(
+                    self.client.chat.completions.create,
+                    **request_kwargs,
                 )
                 duration_ms = round((time.perf_counter() - started_at) * 1000, 2)
                 logger.info(

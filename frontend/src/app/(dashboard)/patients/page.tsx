@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   AlertTriangle,
@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 
 import { EmptyState } from "@/components/common/EmptyState";
+import { ExportMenu } from "@/components/common/ExportMenu";
 import { PageHeader } from "@/components/common/PageHeader";
 import { Button } from "@/components/ui/button";
 import { ROUTES } from "@/constants/routes";
@@ -110,6 +111,7 @@ export default function PatientsPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const protocolId = searchParams.get("protocol_id");
+  const tableSectionRef = useRef<HTMLElement | null>(null);
   const [rows, setRows] = useState<PatientRow[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -183,6 +185,21 @@ export default function PatientsPage() {
     return "Screening patients against protocol criteria, ranking the strongest candidates first, and exposing quick blockers before full digital twin simulation.";
   }, [protocolId]);
 
+  const patientExportRows = useMemo(
+    () =>
+      rows.map((row) => ({
+        id: row.summary.id,
+        name: row.summary.name,
+        age: row.summary.age,
+        sex: row.summary.sex,
+        primaryDiagnosis: row.summary.primaryDiagnosis,
+        preScreenScore: row.summary.preScreenScore,
+        riskLevel: row.summary.riskLevel,
+        failReasons: row.summary.failReasons.join("; "),
+      })),
+    [rows],
+  );
+
   if (!protocolId) {
     return (
       <div className="space-y-8">
@@ -203,10 +220,20 @@ export default function PatientsPage() {
         title="Patients"
         description={titleDescription}
         action={
-          <Button variant="outline" onClick={() => void loadPatients(protocolId)} disabled={loading}>
-            <RefreshCcw className="h-4 w-4" />
-            {loading ? "Refreshing..." : "Re-screen"}
-          </Button>
+          <div className="flex flex-col gap-3 sm:flex-row">
+            {rows.length > 0 ? (
+              <ExportMenu
+                fileBaseName={`protocol-${protocolId}-patient-screening`}
+                csvRows={patientExportRows}
+                jsonData={rows.map((row) => row.summary)}
+                imageTargetRef={tableSectionRef}
+              />
+            ) : null}
+            <Button variant="outline" onClick={() => void loadPatients(protocolId)} disabled={loading}>
+              <RefreshCcw className="h-4 w-4" />
+              {loading ? "Refreshing..." : "Re-screen"}
+            </Button>
+          </div>
         }
       />
 
@@ -254,7 +281,10 @@ export default function PatientsPage() {
         />
       ) : (
         <>
-          <section className="hidden overflow-hidden rounded-[2rem] border border-border/70 bg-card/60 lg:block">
+          <section
+            ref={tableSectionRef}
+            className="hidden overflow-hidden rounded-[2rem] border border-border/70 bg-card/60 lg:block"
+          >
             <div className="overflow-x-auto">
               <table className="min-w-full text-left text-sm">
                 <thead className="bg-muted/50 text-xs uppercase tracking-[0.2em] text-muted-foreground">
@@ -339,7 +369,9 @@ export default function PatientsPage() {
                               disabled={runningSimulationId === row.summary.id}
                             >
                               <FlaskConical className="h-4 w-4" />
-                              {runningSimulationId === row.summary.id ? "Running..." : "Run Simulation"}
+                              {runningSimulationId === row.summary.id
+                                ? "Running... Generating reasoning traces..."
+                                : "Run Simulation"}
                             </Button>
                           </div>
                         </td>
@@ -408,7 +440,9 @@ export default function PatientsPage() {
                         onClick={() => void handleRunSimulation(row.summary.id)}
                         disabled={runningSimulationId === row.summary.id}
                       >
-                        {runningSimulationId === row.summary.id ? "Running..." : "Run Simulation"}
+                        {runningSimulationId === row.summary.id
+                          ? "Running... Generating reasoning traces..."
+                          : "Run Simulation"}
                       </Button>
                     </div>
                     <div className="space-y-1">

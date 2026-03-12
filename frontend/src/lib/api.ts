@@ -170,7 +170,7 @@ export const simulationAPI: SimulationAPI = {
       method: "POST",
       url: "/simulate/full",
       data: { protocol_id: protocolId, patient_id: patientId },
-      timeout: 60000,
+      timeout: 90000,
     });
   },
 
@@ -178,6 +178,7 @@ export const simulationAPI: SimulationAPI = {
     return apiRequest<APIResponse<SimulationResponse>>({
       method: "GET",
       url: `/simulations/${simulationId}`,
+      timeout: 90000,
     });
   },
 };

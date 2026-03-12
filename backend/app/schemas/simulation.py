@@ -37,12 +37,21 @@ class PreScreenResponse(CamelModel):
 
 class ReasoningTraceResponse(CamelModel):
     id: str
+    evaluation_id: str
     explanation: str
     risk_factors: list[str] = Field(default_factory=list)
     suggestion: str | None
     confidence_note: str
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class ReasoningTraceCreate(CamelModel):
+    evaluation_id: str
+    explanation: str
+    risk_factors: list[str] = Field(default_factory=list)
+    suggestion: str | None = None
+    confidence_note: str
 
 
 class EvaluationResponse(CamelModel):

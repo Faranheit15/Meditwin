@@ -43,7 +43,7 @@ export function Header({ collapsed, onOpenMobileNav, onToggleSidebar }: HeaderPr
   const { title, subtitle } = resolveHeader(pathname);
 
   return (
-    <header className="sticky top-0 z-30 border-b border-border/70 bg-background/70 px-4 py-4 backdrop-blur md:px-6">
+    <header className="sticky top-0 z-30 shrink-0 border-b border-border/70 bg-background/80 px-4 py-4 backdrop-blur-xl md:px-6">
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-start gap-3">
           <Button variant="ghost" size="icon" className="lg:hidden" onClick={onOpenMobileNav}>

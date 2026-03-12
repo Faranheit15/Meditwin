@@ -124,7 +124,8 @@ export interface EvaluationResponse {
 }
 
 export interface ReasoningTrace {
-  id?: string;
+  id: string;
+  evaluationId: string;
   explanation: string;
   riskFactors: string[];
   suggestion: string | null;
