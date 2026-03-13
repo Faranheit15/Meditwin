@@ -122,7 +122,7 @@ export const patientAPI: PatientAPI = {
   async list(protocolId?: string): Promise<APIResponse<PatientProfile[]>> {
     return apiRequest<APIResponse<PatientProfile[]>>({
       method: "GET",
-      url: "/patients",
+      url: "/patients/",
       params: protocolId ? { protocol_id: protocolId } : undefined,
     });
   },

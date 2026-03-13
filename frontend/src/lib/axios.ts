@@ -12,6 +12,46 @@ import type { TokenProvider } from "@/types/auth";
 import type { APIErrorResponse } from "@/types/api";
 
 let authTokenProvider: TokenProvider | null = null;
+const AUTH_PROVIDER_WAIT_TIMEOUT_MS = 1500;
+let pendingProviderResolvers: Array<(provider: TokenProvider | null) => void> = [];
+
+function flushAuthProviderResolvers(provider: TokenProvider | null): void {
+  if (pendingProviderResolvers.length === 0) {
+    return;
+  }
+
+  const resolvers = pendingProviderResolvers;
+  pendingProviderResolvers = [];
+  for (const resolve of resolvers) {
+    resolve(provider);
+  }
+}
+
+async function waitForAuthTokenProvider(
+  timeoutMs: number = AUTH_PROVIDER_WAIT_TIMEOUT_MS,
+): Promise<TokenProvider | null> {
+  if (authTokenProvider) {
+    return authTokenProvider;
+  }
+
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  return new Promise((resolve) => {
+    const onProviderReady = (provider: TokenProvider | null) => {
+      window.clearTimeout(timeoutId);
+      resolve(provider);
+    };
+
+    const timeoutId = window.setTimeout(() => {
+      pendingProviderResolvers = pendingProviderResolvers.filter((item) => item !== onProviderReady);
+      resolve(authTokenProvider);
+    }, timeoutMs);
+
+    pendingProviderResolvers.push(onProviderReady);
+  });
+}
 
 export class APIRequestError extends Error {
   status: number | null;
@@ -29,10 +69,14 @@ export class APIRequestError extends Error {
 
 export function setAuthTokenProvider(provider: TokenProvider | null): void {
   authTokenProvider = provider;
+  if (provider) {
+    flushAuthProviderResolvers(provider);
+  }
 }
 
 export function clearAuthTokenProvider(): void {
   authTokenProvider = null;
+  flushAuthProviderResolvers(null);
 }
 
 const apiClient = axios.create({
@@ -44,8 +88,9 @@ const apiClient = axios.create({
 });
 
 apiClient.interceptors.request.use(async (config: InternalAxiosRequestConfig) => {
-  if (authTokenProvider) {
-    const token = await authTokenProvider();
+  const provider = authTokenProvider ?? (await waitForAuthTokenProvider());
+  if (provider) {
+    const token = await provider();
     if (token) {
       const headers = AxiosHeaders.from(config.headers);
       headers.set("Authorization", `Bearer ${token}`);

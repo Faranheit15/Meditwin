@@ -21,7 +21,8 @@ router = APIRouter()
 logger = get_logger(__name__)
 
 
-@router.get("/", response_model=APIResponse[list[PatientRead]])
+@router.get("", response_model=APIResponse[list[PatientRead]])
+@router.get("/", response_model=APIResponse[list[PatientRead]], include_in_schema=False)
 async def list_patients(
     protocol_id: str | None = Query(None),
     db: AsyncSession = Depends(get_db),
