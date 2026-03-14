@@ -39,9 +39,17 @@ function resolveHeader(pathname: string): { title: string; subtitle: string } {
   return titleMap[pathname] ?? titleMap[ROUTES.PROTOCOLS];
 }
 
+function getGreeting(): string {
+  const hour = new Date().getHours();
+  if (hour < 12) return "Good Morning";
+  if (hour < 17) return "Good Afternoon";
+  return "Good Evening";
+}
+
 export function Header({ collapsed, onOpenMobileNav, onToggleSidebar }: HeaderProps) {
   const pathname = usePathname();
   const { title, subtitle } = resolveHeader(pathname);
+  const greeting = getGreeting();
 
   return (
     <header className="sticky top-0 z-30 shrink-0 border-b border-border/70 bg-background/80 px-4 py-4 backdrop-blur-xl md:px-6">
@@ -54,7 +62,14 @@ export function Header({ collapsed, onOpenMobileNav, onToggleSidebar }: HeaderPr
             {collapsed ? <PanelLeftOpen className="h-4 w-4" /> : <PanelLeftClose className="h-4 w-4" />}
           </Button>
           <div className="space-y-1">
-            <p className="text-xs uppercase tracking-[0.28em] text-cyan-300/70">Patient Digital Twin</p>
+            <div className="flex items-center gap-2">
+              <div className="relative flex h-2 w-2 items-center justify-center">
+                <span className="live-dot-pulse block h-2 w-2 rounded-full bg-cyan-500" />
+              </div>
+              <p className="text-xs uppercase tracking-[0.28em] text-cyan-800 dark:text-cyan-300/70">
+                {greeting} • Patient Digital Twin
+              </p>
+            </div>
             <h1 className="text-lg font-semibold text-foreground md:text-2xl">{title}</h1>
             <p className="max-w-2xl text-sm text-muted-foreground">{subtitle}</p>
           </div>

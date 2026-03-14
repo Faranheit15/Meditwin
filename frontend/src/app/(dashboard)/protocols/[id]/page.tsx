@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
@@ -32,12 +32,12 @@ function thresholdLabel(criterion: CriterionRule): string {
 
 function confidenceColor(confidence: number): string {
   if (confidence > 0.85) {
-    return "bg-emerald-400";
+    return "bg-emerald-500 dark:bg-emerald-400";
   }
   if (confidence >= 0.6) {
-    return "bg-amber-400";
+    return "bg-amber-500 dark:bg-amber-400";
   }
-  return "bg-rose-400";
+  return "bg-rose-500 dark:bg-rose-400";
 }
 
 export default function ProtocolDetailPage() {
@@ -204,7 +204,7 @@ export default function ProtocolDetailPage() {
       <section className="rounded-[2rem] border border-border/70 bg-card/50 p-6 md:p-8">
         <div className="flex flex-col gap-6 xl:flex-row xl:items-start xl:justify-between">
           <div className="space-y-3">
-            <p className="text-xs uppercase tracking-[0.28em] text-cyan-300/70">Protocol Review</p>
+            <p className="text-xs uppercase tracking-[0.28em] text-cyan-600/90 dark:text-cyan-300/70">Protocol Review</p>
             <div className="flex flex-wrap items-center gap-3">
               <h1 className="text-3xl font-semibold text-foreground">{protocol.name}</h1>
               <ProtocolStatusBadge status={protocol.status} />
@@ -246,7 +246,9 @@ export default function ProtocolDetailPage() {
         {(["inclusion", "exclusion"] as const).map((groupKey) => {
           const title = groupKey === "inclusion" ? "Inclusion Criteria" : "Exclusion Criteria";
           const criteria = groupedCriteria[groupKey];
-          const badgeClass = groupKey === "inclusion" ? "text-emerald-200" : "text-rose-200";
+          const badgeClass = groupKey === "inclusion" 
+            ? "text-emerald-700 dark:text-emerald-200" 
+            : "text-rose-700 dark:text-rose-200";
 
           return (
             <div key={groupKey} className="space-y-4">
@@ -330,7 +332,7 @@ export default function ProtocolDetailPage() {
                             {criterion.evalSchedule.map((week) => (
                               <span
                                 key={`${criterion.id}-${week}`}
-                                className="rounded-full bg-cyan-400/10 px-2.5 py-1 text-xs text-cyan-200"
+                                className="rounded-full bg-cyan-500/10 px-2.5 py-1 text-xs text-cyan-600 dark:text-cyan-200"
                               >
                                 Wk {week}
                               </span>
@@ -377,7 +379,7 @@ export default function ProtocolDetailPage() {
       {showConfirmDialog ? (
         <div className="fixed inset-0 z-40 flex items-center justify-center bg-slate-950/80 px-4">
           <div className="w-full max-w-lg rounded-[2rem] border border-border/70 bg-background p-6 shadow-2xl">
-            <p className="text-xs uppercase tracking-[0.28em] text-cyan-300/70">Confirm Protocol</p>
+            <p className="text-xs uppercase tracking-[0.28em] text-cyan-600/90 dark:text-cyan-300/70">Confirm Protocol</p>
             <h2 className="mt-2 text-2xl font-semibold text-foreground">Mark extracted criteria as confirmed?</h2>
             <p className="mt-3 text-sm text-muted-foreground">
               This will mark {protocol.criteriaCount} criteria as confirmed and allow patient screening.

@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
 
@@ -59,7 +59,7 @@ export function CriterionEditorDialog({
       <div className="w-full max-w-3xl rounded-[2rem] border border-border/70 bg-background p-6 shadow-2xl">
         <div className="flex items-start justify-between gap-4">
           <div className="space-y-1">
-            <p className="text-xs uppercase tracking-[0.28em] text-cyan-300/70">Manual Review</p>
+            <p className="text-xs uppercase tracking-[0.28em] text-cyan-600/90 dark:text-cyan-300/70">Manual Review</p>
             <h2 className="text-2xl font-semibold text-foreground">Edit extracted criterion</h2>
             <p className="text-sm text-muted-foreground">{criterion.originalText}</p>
           </div>

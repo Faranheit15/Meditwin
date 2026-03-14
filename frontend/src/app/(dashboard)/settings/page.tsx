@@ -183,7 +183,7 @@ export default function SettingsPage() {
       <section className="grid gap-6 xl:grid-cols-[1.35fr_0.65fr]">
         <div className="rounded-[2rem] border border-border/70 bg-card/60 p-6">
           <div className="flex items-center gap-3">
-            <ActivitySquare className="h-5 w-5 text-cyan-300" />
+            <ActivitySquare className="h-5 w-5 text-cyan-600 dark:text-cyan-300" />
             <div>
               <h2 className="text-2xl font-semibold text-foreground">Recent Activity</h2>
               <p className="text-sm text-muted-foreground">Latest protocol and simulation events in chronological order</p>
@@ -205,7 +205,7 @@ export default function SettingsPage() {
                   key={item.id}
                   type="button"
                   onClick={() => router.push(item.href)}
-                  className="flex w-full items-start justify-between gap-4 rounded-[1.5rem] border border-border/60 bg-background/35 p-4 text-left transition hover:border-cyan-300/30 hover:bg-background/50"
+                  className="flex w-full items-start justify-between gap-4 rounded-[1.5rem] border border-border/60 bg-background/35 p-4 text-left transition hover:border-cyan-500/30 hover:bg-background/50"
                 >
                   <div>
                     <p className="font-medium text-foreground">{item.title}</p>
@@ -221,7 +221,7 @@ export default function SettingsPage() {
         <div className="space-y-6">
           <section className="rounded-[2rem] border border-border/70 bg-card/60 p-6">
             <div className="flex items-center gap-3">
-              <FolderOpen className="h-5 w-5 text-cyan-300" />
+              <FolderOpen className="h-5 w-5 text-cyan-600 dark:text-cyan-300" />
               <div>
                 <h2 className="text-xl font-semibold text-foreground">Quick Actions</h2>
                 <p className="text-sm text-muted-foreground">Jump to the main coordinator workflows</p>
@@ -239,7 +239,7 @@ export default function SettingsPage() {
             <div className="mt-5 grid gap-4">
               <div className="rounded-[1.5rem] border border-border/60 bg-background/35 p-4">
                 <div className="flex items-center gap-3">
-                  <UserRound className="h-5 w-5 text-cyan-300" />
+                  <UserRound className="h-5 w-5 text-cyan-600 dark:text-cyan-300" />
                   <div>
                     <p className="font-medium text-foreground">{user?.fullName ?? "Coordinator Profile"}</p>
                     <p className="text-sm text-muted-foreground">{user?.primaryEmailAddress?.emailAddress ?? "Loading Clerk profile"}</p>
@@ -259,7 +259,7 @@ export default function SettingsPage() {
 
               <div className="rounded-[1.5rem] border border-border/60 bg-background/35 p-4">
                 <div className="flex items-center gap-3">
-                  <Database className="h-5 w-5 text-cyan-300" />
+                  <Database className="h-5 w-5 text-cyan-600 dark:text-cyan-300" />
                   <div>
                     <p className="font-medium text-foreground">Connected to Supabase</p>
                     <p className="text-sm text-muted-foreground">Database connectivity assumed for this workspace</p>
@@ -269,7 +269,7 @@ export default function SettingsPage() {
 
               <div className="rounded-[1.5rem] border border-border/60 bg-background/35 p-4">
                 <div className="flex items-center gap-3">
-                  <TestTube2 className="h-5 w-5 text-cyan-300" />
+                  <TestTube2 className="h-5 w-5 text-cyan-600 dark:text-cyan-300" />
                   <div>
                     <p className="font-medium text-foreground">Groq - Llama 3.3 70B</p>
                     <p className="text-sm text-muted-foreground">Reasoning and extraction provider</p>

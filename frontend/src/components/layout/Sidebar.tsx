@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useClerk, useUser } from "@clerk/nextjs";
 import Link from "next/link";
@@ -61,7 +61,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
     >
       <div className="flex items-center justify-between gap-2 px-2">
         <div className={cn("space-y-1", collapsed && "hidden")}>
-          <p className="text-xs uppercase tracking-[0.28em] text-cyan-300/70">MediTwin</p>
+          <p className="text-xs uppercase tracking-[0.28em] text-cyan-800 dark:text-cyan-300/70">MediTwin</p>
           <p className="text-sm text-muted-foreground">Clinical eligibility command center</p>
         </div>
       </div>
@@ -78,7 +78,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
               className={cn(
                 "flex items-center gap-3 rounded-2xl border px-3 py-3 text-sm transition-colors",
                 isActive
-                  ? "border-cyan-400/30 bg-cyan-400/10 text-foreground"
+                  ? "border-primary/30 bg-primary/10 text-foreground"
                   : "border-transparent text-muted-foreground hover:border-border/80 hover:bg-muted/60 hover:text-foreground",
                 collapsed && "justify-center px-0",
               )}
@@ -86,7 +86,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
               <Icon className="h-4 w-4 shrink-0" />
               {!collapsed ? <span>{label}</span> : null}
               {showProtocolCount ? (
-                <span className="ml-auto rounded-full bg-cyan-400/10 px-2 py-0.5 text-xs font-semibold text-cyan-200">
+                <span className="ml-auto rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">
                   {protocolCount}
                 </span>
               ) : null}
@@ -97,7 +97,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
 
       <div className="mt-6 rounded-3xl border border-border/70 bg-card/65 p-3">
         <div className="flex items-center gap-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-cyan-400/10 text-sm font-semibold text-cyan-300">
+          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/10 text-sm font-semibold text-primary">
             {getInitials(user?.firstName, user?.lastName, user?.primaryEmailAddress?.emailAddress)}
           </div>
           {!collapsed ? (

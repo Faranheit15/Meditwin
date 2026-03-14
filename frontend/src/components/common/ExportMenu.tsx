@@ -97,38 +97,37 @@ export function ExportMenu({
       {open ? (
         <div
           role="menu"
-          className={`absolute top-full z-50 mt-2 min-w-[12rem] rounded-2xl border border-border/70 bg-slate-950/96 p-2 shadow-2xl ${
-            align === "left" ? "left-0" : "right-0"
-          }`}
+          className={`absolute top-full z-50 mt-2 min-w-[12rem] rounded-2xl border border-border/70 bg-popover/95 backdrop-blur-md p-2 shadow-2xl ${align === "left" ? "left-0" : "right-0"
+            }`}
         >
           <button
             type="button"
             role="menuitem"
-            className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left text-sm text-foreground transition-colors hover:bg-muted/70"
+            className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left text-sm text-popover-foreground transition-colors hover:bg-muted/70"
             onClick={() => void handleCsvExport()}
             disabled={busy !== null}
           >
-            <FileText className="h-4 w-4 text-cyan-300" />
+            <FileText className="h-4 w-4 text-primary" />
             {busy === "csv" ? "Preparing CSV..." : "Download CSV"}
           </button>
           <button
             type="button"
             role="menuitem"
-            className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left text-sm text-foreground transition-colors hover:bg-muted/70"
+            className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left text-sm text-popover-foreground transition-colors hover:bg-muted/70"
             onClick={() => void handleJsonExport()}
             disabled={busy !== null}
           >
-            <Braces className="h-4 w-4 text-cyan-300" />
+            <Braces className="h-4 w-4 text-primary" />
             {busy === "json" ? "Preparing JSON..." : "Download JSON"}
           </button>
           <button
             type="button"
             role="menuitem"
-            className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left text-sm text-foreground transition-colors hover:bg-muted/70 disabled:cursor-not-allowed disabled:opacity-50"
+            className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left text-sm text-popover-foreground transition-colors hover:bg-muted/70 disabled:cursor-not-allowed disabled:opacity-50"
             onClick={() => void handleImageExport()}
             disabled={busy !== null || !imageTargetRef?.current}
           >
-            <FileImage className="h-4 w-4 text-cyan-300" />
+            <FileImage className="h-4 w-4 text-primary" />
             {busy === "image" ? "Rendering image..." : "Download PNG"}
           </button>
         </div>

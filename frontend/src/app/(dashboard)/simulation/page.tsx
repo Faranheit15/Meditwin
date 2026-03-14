@@ -14,19 +14,19 @@ import { cn, formatDate, formatRelativeTime, formatRiskLabel } from "@/lib/utils
 import type { SimulationListItem } from "@/types/models";
 
 function compatibilityTone(score: number): string {
-  if (score >= 80) return "text-emerald-300";
-  if (score >= 50) return "text-amber-200";
-  return "text-rose-200";
+  if (score >= 80) return "text-emerald-700 dark:text-emerald-300";
+  if (score >= 50) return "text-amber-700 dark:text-amber-200";
+  return "text-rose-700 dark:text-rose-200";
 }
 
 function riskBadgeTone(risk: SimulationListItem["overallRisk"]): string {
   switch (risk) {
     case "LOW":
-      return "border-emerald-400/30 bg-emerald-400/10 text-emerald-200";
+      return "border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:border-emerald-400/30 dark:bg-emerald-400/10 dark:text-emerald-200";
     case "MEDIUM":
-      return "border-amber-400/30 bg-amber-400/10 text-amber-100";
+      return "border-amber-500/30 bg-amber-500/10 text-amber-700 dark:border-amber-400/30 dark:bg-amber-400/10 dark:text-amber-100";
     case "HIGH":
-      return "border-rose-400/30 bg-rose-400/10 text-rose-200";
+      return "border-rose-500/30 bg-rose-500/10 text-rose-700 dark:border-rose-400/30 dark:bg-rose-400/10 dark:text-rose-200";
   }
 }
 

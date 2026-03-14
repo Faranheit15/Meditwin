@@ -61,7 +61,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
                 Reset the current boundary or return to the dashboard shell.
               </p>
               {process.env.NODE_ENV === "development" && this.state.errorMessage ? (
-                <pre className="overflow-x-auto rounded-2xl border border-border/80 bg-black/30 p-4 text-xs text-cyan-200">
+                <pre className="overflow-x-auto rounded-2xl border border-border/80 bg-black/30 p-4 text-xs text-cyan-600 dark:text-cyan-200">
                   {this.state.errorMessage}
                 </pre>
               ) : null}

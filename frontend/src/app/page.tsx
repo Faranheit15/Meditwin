@@ -40,7 +40,7 @@ export default async function HomePage() {
       <div className="mx-auto flex min-h-screen max-w-7xl flex-col justify-center px-6 py-20">
         <div className="grid gap-12 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
           <section className="space-y-8">
-            <div className="inline-flex rounded-full border border-cyan-300/20 bg-cyan-300/10 px-4 py-2 text-xs uppercase tracking-[0.32em] text-cyan-200/80">
+            <div className="inline-flex rounded-full border border-primary/20 bg-primary/10 px-4 py-2 text-xs uppercase tracking-[0.32em] text-cyan-700 dark:text-cyan-200/80">
               Patient Digital Twin for Clinical Trials
             </div>
             <div className="space-y-5">
@@ -70,7 +70,7 @@ export default async function HomePage() {
                   key={title}
                   className="rounded-[1.5rem] border border-border/70 bg-background/40 p-5 transition-transform duration-300 hover:-translate-y-1"
                 >
-                  <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-cyan-400/10 text-cyan-300">
+                  <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
                     <Icon className="h-6 w-6" />
                   </div>
                   <h2 className="text-lg font-semibold text-foreground">{title}</h2>

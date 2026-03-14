@@ -38,11 +38,11 @@ function scoreTone(score: number | null): string {
 function riskBadgeTone(riskLevel: PatientProfile["riskLevel"] | PreScreenPatientResult["riskLevel"]): string {
   switch (riskLevel) {
     case "LOW":
-      return "border-emerald-400/30 bg-emerald-400/10 text-emerald-200";
+      return "border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:border-emerald-400/30 dark:bg-emerald-400/10 dark:text-emerald-200";
     case "MEDIUM":
-      return "border-amber-400/30 bg-amber-400/10 text-amber-100";
+      return "border-amber-500/30 bg-amber-500/10 text-amber-700 dark:border-amber-400/30 dark:bg-amber-400/10 dark:text-amber-100";
     case "HIGH":
-      return "border-rose-400/30 bg-rose-400/10 text-rose-200";
+      return "border-rose-500/30 bg-rose-500/10 text-rose-700 dark:border-rose-400/30 dark:bg-rose-400/10 dark:text-rose-200";
     default:
       return "border-border/70 bg-muted/40 text-muted-foreground";
   }
@@ -103,15 +103,15 @@ function labStatusTone(value: number, referenceRange: [number, number]) {
   const [low, high] = referenceRange;
   if (value < low || value > high) {
     return {
-      dot: "bg-rose-400",
-      text: "text-rose-200",
+      dot: "bg-rose-500 dark:bg-rose-400",
+      text: "text-rose-700 dark:text-rose-200",
       label: "Abnormal",
     };
   }
 
   return {
-    dot: "bg-emerald-400",
-    text: "text-emerald-200",
+    dot: "bg-emerald-500 dark:bg-emerald-400",
+    text: "text-emerald-700 dark:text-emerald-200",
     label: "Within range",
   };
 }
@@ -195,7 +195,7 @@ function ScreeningExpandedPanel({
   return (
     <div className="grid gap-4 xl:grid-cols-3">
       <div className="rounded-[1.5rem] border border-border/60 bg-card/40 p-4">
-        <p className="text-xs uppercase tracking-[0.2em] text-cyan-200">Latest Labs</p>
+        <p className="text-xs uppercase tracking-[0.2em] text-cyan-600/90 dark:text-cyan-200">Latest Labs</p>
         <div className="mt-3 space-y-2">
           {patient.labResults.length > 0 ? (
             patient.labResults.map((lab) => (
@@ -216,7 +216,7 @@ function ScreeningExpandedPanel({
       </div>
 
       <div className="rounded-[1.5rem] border border-border/60 bg-card/40 p-4">
-        <p className="text-xs uppercase tracking-[0.2em] text-cyan-200">Conditions</p>
+        <p className="text-xs uppercase tracking-[0.2em] text-cyan-600/90 dark:text-cyan-200">Conditions</p>
         <div className="mt-3 space-y-2">
           {patient.conditions.length > 0 ? (
             patient.conditions.map((condition) => (
@@ -234,7 +234,7 @@ function ScreeningExpandedPanel({
       </div>
 
       <div className="rounded-[1.5rem] border border-border/60 bg-card/40 p-4">
-        <p className="text-xs uppercase tracking-[0.2em] text-cyan-200">Medications</p>
+        <p className="text-xs uppercase tracking-[0.2em] text-cyan-600/90 dark:text-cyan-200">Medications</p>
         <div className="mt-3 space-y-2">
           {patient.medications.length > 0 ? (
             patient.medications.map((medication) => (
@@ -255,7 +255,7 @@ function ScreeningExpandedPanel({
         </div>
         {failReasons.length > 0 ? (
           <div className="mt-4 rounded-2xl border border-amber-400/20 bg-amber-400/5 p-3">
-            <p className="text-xs uppercase tracking-[0.18em] text-amber-200">Fail Reasons</p>
+            <p className="text-xs uppercase tracking-[0.18em] text-amber-700 dark:text-amber-200">Fail Reasons</p>
             <div className="mt-2 space-y-1">
               {failReasons.map((reason) => (
                 <p key={reason} className="text-xs text-muted-foreground">
@@ -288,7 +288,7 @@ function RegistryExpandedPanel({
   return (
     <div className="grid gap-4 xl:grid-cols-[1.2fr_1fr_1fr]">
       <div className="rounded-[1.5rem] border border-border/60 bg-card/40 p-4">
-        <p className="text-xs uppercase tracking-[0.2em] text-cyan-200">Latest Labs</p>
+        <p className="text-xs uppercase tracking-[0.2em] text-cyan-800 dark:text-cyan-200">Latest Labs</p>
         <div className="mt-3 grid gap-3 sm:grid-cols-2">
           {patient.labResults.length > 0 ? (
             patient.labResults.map((lab) => {
@@ -317,7 +317,7 @@ function RegistryExpandedPanel({
 
       <div className="space-y-4">
         <div className="rounded-[1.5rem] border border-border/60 bg-card/40 p-4">
-          <p className="text-xs uppercase tracking-[0.2em] text-cyan-200">Active Medications</p>
+          <p className="text-xs uppercase tracking-[0.2em] text-cyan-800 dark:text-cyan-200">Active Medications</p>
           <div className="mt-3 space-y-2">
             {patient.medications.length > 0 ? (
               patient.medications.map((medication) => (
@@ -339,7 +339,7 @@ function RegistryExpandedPanel({
         </div>
 
         <div className="rounded-[1.5rem] border border-border/60 bg-card/40 p-4">
-          <p className="text-xs uppercase tracking-[0.2em] text-cyan-200">Conditions</p>
+          <p className="text-xs uppercase tracking-[0.2em] text-cyan-800 dark:text-cyan-200">Conditions</p>
           <div className="mt-3 space-y-2">
             {patient.conditions.length > 0 ? (
               patient.conditions.map((condition) => (
@@ -358,14 +358,14 @@ function RegistryExpandedPanel({
       </div>
 
       <div className="rounded-[1.5rem] border border-border/60 bg-card/40 p-4">
-        <p className="text-xs uppercase tracking-[0.2em] text-cyan-200">Run Simulation</p>
+        <p className="text-xs uppercase tracking-[0.2em] text-cyan-800 dark:text-cyan-200">Run Simulation</p>
         <p className="mt-3 text-sm text-muted-foreground">
           Choose a confirmed protocol and run a full eligibility simulation for this patient.
         </p>
         <select
           value={selectedProtocolId}
           onChange={(event) => onSelectProtocol(event.target.value)}
-          className="mt-4 w-full rounded-2xl border border-border/70 bg-background/50 px-4 py-3 text-sm text-foreground outline-none transition focus:border-cyan-300/40"
+          className="mt-4 w-full rounded-2xl border border-border/70 bg-background/50 px-4 py-3 text-sm text-foreground outline-none transition focus:border-cyan-500/40"
         >
           <option value="">Select confirmed protocol</option>
           {protocols.map((protocol) => (
@@ -463,7 +463,7 @@ function ProtocolScreeningMode({ protocolId }: { protocolId: string }) {
           description="Screening patients against protocol criteria, ranking the strongest candidates first, and exposing quick blockers before full digital twin simulation."
         />
         <section className="rounded-[2rem] border border-cyan-300/20 bg-cyan-300/5 p-6">
-          <p className="text-sm uppercase tracking-[0.2em] text-cyan-200">Pre-Screen Sweep</p>
+          <p className="text-sm uppercase tracking-[0.2em] text-cyan-800 dark:text-cyan-200">Pre-Screen Sweep</p>
           <h2 className="mt-2 text-2xl font-semibold text-foreground">Screening patients against protocol criteria...</h2>
           <p className="mt-2 text-sm text-muted-foreground">
             Current values are being evaluated first so the cohort can be ranked before any full simulations run.
@@ -498,7 +498,7 @@ function ProtocolScreeningMode({ protocolId }: { protocolId: string }) {
       />
 
       {toastMessage ? (
-        <div className="fixed right-4 top-4 z-50 max-w-sm rounded-2xl border border-rose-400/30 bg-slate-950/95 px-4 py-3 text-sm text-rose-100 shadow-2xl">
+        <div className="fixed right-4 top-4 z-50 max-w-sm rounded-[1.25rem] border border-rose-500/30 bg-background/95 px-4 py-3 text-sm text-rose-700 shadow-2xl dark:border-rose-400/30 dark:bg-slate-950/95 dark:text-rose-100">
           {toastMessage}
         </div>
       ) : null}
@@ -594,7 +594,7 @@ function ProtocolScreeningMode({ protocolId }: { protocolId: string }) {
                               ))}
                             </div>
                           ) : (
-                            <p className="text-xs text-emerald-200">No blocking criteria at pre-screen.</p>
+                        <p className="text-xs text-emerald-700 dark:text-emerald-200">No blocking criteria at pre-screen.</p>
                           )}
                         </td>
                         <td className="px-5 py-4">
@@ -864,7 +864,7 @@ function PatientRegistryMode() {
       />
 
       {toastMessage ? (
-        <div className="fixed right-4 top-4 z-50 max-w-sm rounded-2xl border border-rose-400/30 bg-slate-950/95 px-4 py-3 text-sm text-rose-100 shadow-2xl">
+        <div className="fixed right-4 top-4 z-50 max-w-sm rounded-[1.25rem] border border-rose-500/30 bg-background/95 px-4 py-3 text-sm text-rose-700 shadow-2xl dark:border-rose-400/30 dark:bg-slate-950/95 dark:text-rose-100">
           {toastMessage}
         </div>
       ) : null}

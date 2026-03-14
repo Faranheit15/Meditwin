@@ -37,9 +37,9 @@ import type {
 } from "@/types/models";
 
 const STATUS_COLORS = {
-  PASS: { bg: "bg-emerald-500", text: "text-emerald-300", ring: "ring-emerald-400/35", label: "Pass" },
-  BORDERLINE: { bg: "bg-amber-500", text: "text-amber-200", ring: "ring-amber-400/35", label: "Borderline" },
-  FAIL: { bg: "bg-red-500", text: "text-rose-200", ring: "ring-rose-400/35", label: "Fail" },
+  PASS: { bg: "bg-emerald-500", text: "text-emerald-800 dark:text-emerald-300", ring: "ring-emerald-400/35", label: "Pass" },
+  BORDERLINE: { bg: "bg-amber-500", text: "text-amber-800 dark:text-amber-200", ring: "ring-amber-400/35", label: "Borderline" },
+  FAIL: { bg: "bg-red-500", text: "text-rose-800 dark:text-rose-200", ring: "ring-rose-400/35", label: "Fail" },
 } as const;
 
 const OPERATOR_DISPLAY: Record<string, string> = {
@@ -77,11 +77,11 @@ interface ParameterChart {
 function riskBadgeTone(risk: SimulationResponse["overallRisk"] | PatientProfile["riskLevel"]) {
   switch (risk) {
     case "LOW":
-      return "border-emerald-400/30 bg-emerald-400/10 text-emerald-200";
+      return "border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:border-emerald-400/30 dark:bg-emerald-400/10 dark:text-emerald-200";
     case "MEDIUM":
-      return "border-amber-400/30 bg-amber-400/10 text-amber-100";
+      return "border-amber-500/30 bg-amber-500/10 text-amber-700 dark:border-amber-400/30 dark:bg-amber-400/10 dark:text-amber-100";
     case "HIGH":
-      return "border-rose-400/30 bg-rose-400/10 text-rose-200";
+      return "border-rose-500/30 bg-rose-500/10 text-rose-700 dark:border-rose-400/30 dark:bg-rose-400/10 dark:text-rose-200";
     default:
       return "border-border/70 bg-muted/40 text-muted-foreground";
   }
@@ -90,22 +90,22 @@ function riskBadgeTone(risk: SimulationResponse["overallRisk"] | PatientProfile[
 function findingBadgeTone(status: EvaluationResponse["status"]) {
   switch (status) {
     case "BORDERLINE":
-      return "border-amber-400/30 bg-amber-400/10 text-amber-100";
+      return "border-amber-500/30 bg-amber-500/10 text-amber-700 dark:border-amber-400/30 dark:bg-amber-400/10 dark:text-amber-100";
     case "FAIL":
-      return "border-rose-400/30 bg-rose-400/10 text-rose-200";
+      return "border-rose-500/30 bg-rose-500/10 text-rose-700 dark:border-rose-400/30 dark:bg-rose-400/10 dark:text-rose-200";
     default:
-      return "border-emerald-400/30 bg-emerald-400/10 text-emerald-200";
+      return "border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:border-emerald-400/30 dark:bg-emerald-400/10 dark:text-emerald-200";
   }
 }
 
 function compatibilityTone(score: number): string {
   if (score >= 80) {
-    return "text-emerald-300";
+    return "text-emerald-700 dark:text-emerald-300";
   }
   if (score >= 50) {
-    return "text-amber-200";
+    return "text-amber-700 dark:text-amber-200";
   }
-  return "text-rose-200";
+  return "text-rose-700 dark:text-rose-200";
 }
 
 function weekLabel(week: number): string {
@@ -463,7 +463,7 @@ export default function SimulationPage() {
 
       <section className="grid gap-6 xl:grid-cols-[1.35fr_0.85fr]">
         <div className="rounded-[2rem] border border-border/70 bg-card/60 p-6 md:p-8">
-          <p className="text-xs uppercase tracking-[0.28em] text-cyan-300/70">Patient Twin Summary</p>
+          <p className="text-xs uppercase tracking-[0.28em] text-cyan-600/90 dark:text-cyan-300/70">Patient Twin Summary</p>
           <div className="mt-4 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
             <div className="space-y-3">
               <div>
@@ -508,7 +508,7 @@ export default function SimulationPage() {
         </div>
 
         <div className="rounded-[2rem] border border-border/70 bg-card/60 p-6">
-          <p className="text-xs uppercase tracking-[0.28em] text-cyan-300/70">Signal Snapshot</p>
+          <p className="text-xs uppercase tracking-[0.28em] text-cyan-600/90 dark:text-cyan-300/70">Signal Snapshot</p>
           <div className="mt-4 grid gap-3">
             <div className="rounded-[1.5rem] border border-border/60 bg-background/35 p-4">
               <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Timepoints</p>
@@ -531,7 +531,7 @@ export default function SimulationPage() {
       <section ref={timelineSectionRef} className="space-y-4 rounded-[2rem] border border-border/70 bg-card/60 p-6">
         <div className="flex items-center justify-between gap-3">
           <div>
-            <p className="text-xs uppercase tracking-[0.28em] text-cyan-300/70">Timeline Grid</p>
+            <p className="text-xs uppercase tracking-[0.28em] text-cyan-600/90 dark:text-cyan-300/70">Timeline Grid</p>
             <h2 className="mt-2 text-2xl font-semibold text-foreground">Eligibility trajectory across study weeks</h2>
           </div>
           <div className="flex flex-col items-end gap-3">
@@ -663,7 +663,7 @@ export default function SimulationPage() {
       <section ref={reasoningSectionRef} className="space-y-5 rounded-[2rem] border border-border/70 bg-card/60 p-6">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
-          <p className="text-xs uppercase tracking-[0.28em] text-cyan-300/70">Reasoning Traces</p>
+          <p className="text-xs uppercase tracking-[0.28em] text-cyan-600/90 dark:text-cyan-300/70">Reasoning Traces</p>
           <h2 className="mt-2 text-2xl font-semibold text-foreground">Coordinator-ready explanations for flagged findings</h2>
           </div>
           {reasoningExportRows.length > 0 ? (
@@ -687,7 +687,7 @@ export default function SimulationPage() {
             {flaggedByWeek.map((group) => (
               <div key={group.week} className="space-y-4">
                 <div className="flex items-center gap-3">
-                  <span className="rounded-full bg-cyan-400/10 px-3 py-1 text-xs font-medium text-cyan-200">
+                  <span className="rounded-full bg-cyan-500/10 px-3 py-1 text-xs font-medium text-cyan-700 dark:text-cyan-200">
                     {weekLabel(group.week)}
                   </span>
                   <p className="text-sm text-muted-foreground">{group.evaluations.length} flagged evaluations</p>
@@ -751,8 +751,8 @@ export default function SimulationPage() {
                               ))}
                             </div>
                             {reasoning.suggestion ? (
-                              <div className="rounded-[1.25rem] border border-cyan-300/20 bg-cyan-300/8 p-4">
-                                <p className="text-xs uppercase tracking-[0.18em] text-cyan-200">Suggested Action</p>
+                              <div className="rounded-[1.25rem] border border-cyan-500/20 bg-cyan-500/8 p-4">
+                                <p className="text-xs uppercase tracking-[0.18em] text-cyan-800 dark:text-cyan-200">Suggested Action</p>
                                 <p className="mt-2 text-sm text-foreground">{reasoning.suggestion}</p>
                               </div>
                             ) : null}

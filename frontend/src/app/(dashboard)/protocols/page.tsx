@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -177,7 +177,7 @@ export default function ProtocolsPage() {
       <section
         className={cn(
           "rounded-[2rem] border border-dashed p-6 transition-colors md:p-8",
-          dragging ? "border-cyan-300 bg-cyan-300/10" : "border-cyan-300/30 bg-cyan-300/5",
+          dragging ? "border-cyan-400 bg-cyan-400/10" : "border-cyan-400/30 bg-cyan-400/5",
         )}
         onDragOver={(event) => {
           event.preventDefault();
@@ -195,7 +195,7 @@ export default function ProtocolsPage() {
       >
         <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
           <div className="space-y-3">
-            <div className="flex h-14 w-14 items-center justify-center rounded-[1.5rem] bg-cyan-400/10 text-cyan-300">
+            <div className="flex h-14 w-14 items-center justify-center rounded-[1.5rem] bg-cyan-500/10 text-cyan-700 dark:text-cyan-300">
               <Sparkles className="h-7 w-7" />
             </div>
             <div className="space-y-2">

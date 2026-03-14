@@ -56,7 +56,7 @@ export function MobileNav({ open, onClose }: MobileNavProps) {
       >
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-xs uppercase tracking-[0.28em] text-cyan-300/70">MediTwin</p>
+            <p className="text-xs uppercase tracking-[0.28em] text-cyan-700/90 dark:text-cyan-300/70">MediTwin</p>
             <p className="text-sm text-muted-foreground">Eligibility workspace</p>
           </div>
           <Button variant="ghost" size="icon" onClick={onClose} aria-label="Close navigation">
@@ -75,7 +75,7 @@ export function MobileNav({ open, onClose }: MobileNavProps) {
                 className={cn(
                   "flex items-center gap-3 rounded-2xl border px-4 py-3 text-sm transition-colors",
                   isActive
-                    ? "border-cyan-400/30 bg-cyan-400/10 text-foreground"
+                    ? "border-cyan-500/30 bg-cyan-500/10 text-foreground"
                     : "border-transparent text-muted-foreground hover:border-border/80 hover:bg-muted/70 hover:text-foreground",
                 )}
                 onClick={onClose}
