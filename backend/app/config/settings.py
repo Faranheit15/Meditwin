@@ -33,6 +33,9 @@ class Settings(BaseSettings):
     CORS_ORIGINS: Annotated[list[str], NoDecode] = ["http://localhost:3000"]
     LOG_LEVEL: str = "INFO"
 
+    ENABLE_DB_KEEPALIVE: bool = False
+    DB_KEEPALIVE_INTERVAL_SECONDS: int = 259_200
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
@@ -57,6 +60,13 @@ class Settings(BaseSettings):
                 if item.strip()
             ] or ["http://localhost:3000"]
         return [item.strip() for item in cleaned.split(",") if item.strip()]
+
+    @field_validator("DB_KEEPALIVE_INTERVAL_SECONDS")
+    @classmethod
+    def validate_keepalive_interval(cls, value: int) -> int:
+        if value < 3_600:
+            raise ValueError("DB_KEEPALIVE_INTERVAL_SECONDS must be at least 3600.")
+        return value
 
     @property
     def resolved_database_url(self) -> str:
