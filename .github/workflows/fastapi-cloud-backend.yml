@@ -1,0 +1,21 @@
+name: Deploy Backend to FastAPI Cloud
+
+on:
+  push:
+    branches: [develop]
+    paths:
+      - "backend/**"
+      - "install_dependencies.sh"
+      - ".gitattributes"
+      - ".github/workflows/fastapi-cloud-backend.yml"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: astral-sh/setup-uv@v7
+      - run: uv --project backend run fastapi deploy --app-id "$FASTAPI_CLOUD_APP_ID" .
+        env:
+          FASTAPI_CLOUD_TOKEN: ${{ secrets.FASTAPI_CLOUD_TOKEN }}
+          FASTAPI_CLOUD_APP_ID: ${{ secrets.FASTAPI_CLOUD_APP_ID }}
